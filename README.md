@@ -1,28 +1,28 @@
-# TalentScout
-Short description and motivation.
+# talent_scout
 
-## Usage
-How to use my plugin.
+Model-backed searches in Rails.
+
 
 ## Installation
+
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'talent_scout'
+gem "talent_scout"
 ```
 
 And then execute:
+
 ```bash
-$ bundle
+$ bundle install
 ```
 
-Or install it yourself as:
-```bash
-$ gem install talent_scout
-```
 
 ## Contributing
-Contribution directions go here.
+
+Run `rake test` to run the tests.
+
 
 ## License
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+[MIT License](https://opensource.org/licenses/MIT)
