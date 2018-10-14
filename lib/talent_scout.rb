@@ -1,5 +1,1 @@
-require "talent_scout/railtie"
-
-module TalentScout
-  # Your code goes here...
-end
+require "talent_scout/version"
