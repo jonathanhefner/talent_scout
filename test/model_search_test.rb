@@ -13,6 +13,7 @@ class ModelSearchTest < Minitest::Test
       int1: 123,
       date1: Date.new(1999, 12, 31),
       date2: Date.new(2000, 01, 01),
+      choice1: :foo,
     }
 
     search = MyModelSearch.new(expected.transform_values(&:to_s))
@@ -25,6 +26,7 @@ class ModelSearchTest < Minitest::Test
     criteria :str1
     criteria :int1, :integer
     criteria %i[date1 date2], :date
+    criteria :choice1, { "foo" => :foo, "bar" => :bar }
   end
 
 end
