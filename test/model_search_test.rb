@@ -20,7 +20,14 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, search.attributes.symbolize_keys
   end
 
+  def test_guess_model_class
+    assert_equal MyModel, MyModelSearch.model
+  end
+
   private
+
+  class MyModel
+  end
 
   class MyModelSearch < TalentScout::ModelSearch
     criteria :str1

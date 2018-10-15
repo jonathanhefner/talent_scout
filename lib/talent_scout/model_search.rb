@@ -3,6 +3,10 @@ module TalentScout
     include ActiveModel::Model
     include ActiveModel::Attributes
 
+    def self.model
+      @model ||= self.name.chomp("Search").constantize
+    end
+
     def self.criteria(names, type = :string)
       type = ChoiceType.new(type) if type.is_a?(Hash)
 
