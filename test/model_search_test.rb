@@ -20,6 +20,13 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, search.attributes.symbolize_keys
   end
 
+  def test_attribute_default_values
+    search = MyModelSearch.new
+    search.attributes.each do |name, value|
+      assert_equal TalentScout::OrMissingType::MISSING, value
+    end
+  end
+
   def test_guess_model_class
     assert_equal MyModel, MyModelSearch.model
   end

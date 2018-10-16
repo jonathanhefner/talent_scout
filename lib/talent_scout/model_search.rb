@@ -11,7 +11,7 @@ module TalentScout
       type = ChoiceType.new(type) if type.is_a?(Hash)
 
       Array(names).each do |name|
-        attribute name, type
+        attribute name, OrMissingType.new(type), default: OrMissingType::MISSING
       end
     end
 
