@@ -54,7 +54,13 @@ class ModelSearchTest < Minitest::Test
       end
 
       def append(name, value)
-        self.class.new(@to_a + [[name, value, :OK]])
+        self.class.new(@to_a + [[name.to_sym, value, :OK]])
+      end
+
+      def where(args)
+        args.reduce(self) do |rel, (name, value)|
+          rel.append(name, value)
+        end
       end
 
       def date1(x, y)
@@ -74,9 +80,7 @@ class ModelSearchTest < Minitest::Test
 
     criteria %i[date1_part1 date1_part2], :date, &:date1
 
-    criteria :choice1, { "foo" => :foo, "bar" => :bar } do |x|
-      append(:choice1, x)
-    end
+    criteria %i[choice1_part1 choice1_part2], { "foo" => :foo, "bar" => :bar }
   end
 
   CRITERIA_VALUES = {
@@ -85,7 +89,8 @@ class ModelSearchTest < Minitest::Test
     int1_part2: 456,
     date1_part1: Date.new(1999, 12, 31),
     date1_part2: Date.new(2000, 01, 01),
-    choice1: :foo,
+    choice1_part1: :foo,
+    choice1_part2: :bar,
   }
 
   def assert_results(criteria_values, search)
