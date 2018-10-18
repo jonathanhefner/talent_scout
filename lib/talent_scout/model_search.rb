@@ -44,7 +44,7 @@ module TalentScout
               scope.instance_exec(scope, *block_args, &block)
             else
               scope.instance_exec(*block_args, &block)
-            end
+            end || scope
           else
             scope.where(attributes.slice(*names))
           end

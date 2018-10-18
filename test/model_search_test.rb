@@ -39,6 +39,11 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_results_skips_conditional_criteria_block
+    search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
+    assert_results CRITERIA_VALUES.except(:skip_if_neg), search
+  end
+
   private
 
   class MyModel
@@ -81,6 +86,10 @@ class ModelSearchTest < Minitest::Test
     criteria %i[date1_part1 date1_part2], :date, &:date1
 
     criteria %i[choice1_part1 choice1_part2], { "foo" => :foo, "bar" => :bar }
+
+    criteria :skip_if_neg, :integer do |x|
+      append(:skip_if_neg, x) unless x < 0
+    end
   end
 
   CRITERIA_VALUES = {
@@ -91,6 +100,7 @@ class ModelSearchTest < Minitest::Test
     date1_part2: Date.new(2000, 01, 01),
     choice1_part1: :foo,
     choice1_part2: :bar,
+    skip_if_neg: 1,
   }
 
   def assert_results(criteria_values, search)
