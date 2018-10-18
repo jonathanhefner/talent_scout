@@ -56,6 +56,10 @@ class ModelSearchTest < Minitest::Test
       def append(name, value)
         self.class.new(@to_a + [[name, value, :OK]])
       end
+
+      def date1(x, y)
+        append(:date1_part1, x).append(:date1_part2, y)
+      end
     end
   end
 
@@ -64,13 +68,11 @@ class ModelSearchTest < Minitest::Test
       append(:str1, x)
     end
 
-    criteria :int1, :integer do |x|
-      append(:int1, x)
+    criteria %i[int1_part1 int1_part2], :integer do |x, y|
+      append(:int1_part1, x).append(:int1_part2, y)
     end
 
-    criteria %i[date1_part1 date1_part2], :date do |x, y|
-      append(:date1_part1, x).append(:date1_part2, y)
-    end
+    criteria %i[date1_part1 date1_part2], :date, &:date1
 
     criteria :choice1, { "foo" => :foo, "bar" => :bar } do |x|
       append(:choice1, x)
@@ -79,7 +81,8 @@ class ModelSearchTest < Minitest::Test
 
   CRITERIA_VALUES = {
     str1: "abc",
-    int1: 123,
+    int1_part1: 123,
+    int1_part2: 456,
     date1_part1: Date.new(1999, 12, 31),
     date1_part2: Date.new(2000, 01, 01),
     choice1: :foo,

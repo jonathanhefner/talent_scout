@@ -39,7 +39,11 @@ module TalentScout
       def apply(scope, attributes)
         block_args = names.map{|name| attributes[name] }
         if block_args.none?{|value| OrMissingType::MISSING == value }
-          scope.instance_exec(*block_args, &block)
+          if block.arity == -1 # block from Symbol#to_proc
+            scope.instance_exec(scope, *block_args, &block)
+          else
+            scope.instance_exec(*block_args, &block)
+          end
         else
           scope
         end
