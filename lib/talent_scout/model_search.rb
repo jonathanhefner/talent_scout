@@ -9,8 +9,8 @@ module TalentScout
       @model ||= self.name.chomp("Search").constantize
     end
 
-    def self.criteria(names, type = :string, &block)
-      crit = Criteria.new(names, type, &block)
+    def self.criteria(names, type = :string, default: MISSING_VALUE, &block)
+      crit = Criteria.new(names, type, default, &block)
 
       crit.names.each do |name|
         attribute name, crit.type, default: crit.default
@@ -31,7 +31,7 @@ module TalentScout
     class Criteria
       attr_reader :names, :type, :default, :block
 
-      def initialize(names, type, &block)
+      def initialize(names, type, default, &block)
         @names = Array(names).map(&:to_s)
         @type = case type
           when :void
@@ -41,7 +41,7 @@ module TalentScout
           else
             OrMissingType.new(type, missing: MISSING_VALUE)
           end
-        @default = MISSING_VALUE
+        @default = default
         @block = block
       end
 

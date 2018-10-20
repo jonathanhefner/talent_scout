@@ -15,7 +15,9 @@ class ModelSearchTest < Minitest::Test
   def test_attribute_default_values
     search = MyModelSearch.new
     search.attributes.each do |name, value|
-      assert_equal TalentScout::ModelSearch::MISSING_VALUE, value
+      expected = CRITERIA_DEFAULT_VALUES.fetch(name.to_sym,
+        TalentScout::ModelSearch::MISSING_VALUE)
+      assert_equal expected, value
     end
   end
 
@@ -34,7 +36,12 @@ class ModelSearchTest < Minitest::Test
     groups.each do |group|
       group.each do |name|
         search = MyModelSearch.new(CRITERIA_VALUES.except(name))
-        assert_results CRITERIA_VALUES.except(*group), search
+        expected_values = if group.none?{|n| CRITERIA_DEFAULT_VALUES.key?(n) }
+          CRITERIA_VALUES.except(*group)
+        else
+          CRITERIA_DEFAULT_VALUES.merge(CRITERIA_VALUES.except(name))
+        end
+        assert_results expected_values, search
       end
     end
   end
@@ -50,6 +57,27 @@ class ModelSearchTest < Minitest::Test
   end
 
   private
+
+  CRITERIA_DEFAULT_VALUES = {
+    str2: "abcdefault",
+    date2_part1: Date.new(1970, 01, 01),
+    date2_part2: Date.new(1970, 01, 01),
+  }
+
+  CRITERIA_VALUES = {
+    str1: "abc",
+    str2: "def",
+    int1_part1: 123,
+    int1_part2: 456,
+    date1_part1: Date.new(1999, 12, 31),
+    date1_part2: Date.new(2000, 01, 01),
+    date2_part1: Date.new(2012, 12, 21),
+    date2_part2: Date.new(2012, 12, 22),
+    choice1_part1: :foo,
+    choice1_part2: :bar,
+    skip_if_neg: 1,
+    skip_if_false: true,
+  }
 
   class MyModel
     def self.all
@@ -84,11 +112,18 @@ class ModelSearchTest < Minitest::Test
       append(:str1, x)
     end
 
+    criteria :str2, default: CRITERIA_DEFAULT_VALUES[:str2] do |x|
+      append(:str2, x)
+    end
+
     criteria %i[int1_part1 int1_part2], :integer do |x, y|
       append(:int1_part1, x).append(:int1_part2, y)
     end
 
     criteria %i[date1_part1 date1_part2], :date, &:date1
+
+    criteria %i[date2_part1 date2_part2], :date,
+      default: CRITERIA_DEFAULT_VALUES[:date2_part1]
 
     criteria %i[choice1_part1 choice1_part2], { "foo" => :foo, "bar" => :bar }
 
@@ -101,20 +136,10 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  CRITERIA_VALUES = {
-    str1: "abc",
-    int1_part1: 123,
-    int1_part2: 456,
-    date1_part1: Date.new(1999, 12, 31),
-    date1_part2: Date.new(2000, 01, 01),
-    choice1_part1: :foo,
-    choice1_part2: :bar,
-    skip_if_neg: 1,
-    skip_if_false: true,
-  }
-
   def assert_results(criteria_values, search)
-    assert_equal criteria_values.map{|k, v| [k, v, :OK] }, search.results.to_a
+    expected = criteria_values.map{|k, v| [k, v, :OK] }.sort_by(&:first)
+    actual = search.results.to_a.sort_by(&:first)
+    assert_equal expected, actual
   end
 
 end
