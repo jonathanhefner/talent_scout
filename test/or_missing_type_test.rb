@@ -21,8 +21,8 @@ class OrMissingTypeTest < Minitest::Test
   end
 
   def test_cast_with_invalid_value
-    type = TalentScout::OrMissingType.new(:date)
-    assert_equal TalentScout::OrMissingType::MISSING, type.cast("BAD")
+    type = TalentScout::OrMissingType.new(:date, missing: :MISSING)
+    assert_equal :MISSING, type.cast("BAD")
   end
 
   def test_cast_with_nil

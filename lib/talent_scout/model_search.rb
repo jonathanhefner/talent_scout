@@ -3,6 +3,8 @@ module TalentScout
     include ActiveModel::Model
     include ActiveModel::Attributes
 
+    MISSING_VALUE = Object.new
+
     def self.model
       @model ||= self.name.chomp("Search").constantize
     end
@@ -31,13 +33,14 @@ module TalentScout
 
       def initialize(names, type, &block)
         @names = Array(names).map(&:to_s)
-        @type = OrMissingType.new(type.is_a?(Hash) ? ChoiceType.new(type) : type)
-        @default = OrMissingType::MISSING
+        @type = OrMissingType.new(type.is_a?(Hash) ? ChoiceType.new(type) : type,
+          missing: MISSING_VALUE)
+        @default = MISSING_VALUE
         @block = block
       end
 
       def apply(scope, attributes)
-        if names.none?{|name| OrMissingType::MISSING == attributes[name] }
+        if names.none?{|name| MISSING_VALUE == attributes[name] }
           if block
             block_args = attributes.values_at(*names)
             if block.arity == -1 # block from Symbol#to_proc

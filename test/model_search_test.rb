@@ -15,7 +15,7 @@ class ModelSearchTest < Minitest::Test
   def test_attribute_default_values
     search = MyModelSearch.new
     search.attributes.each do |name, value|
-      assert_equal TalentScout::OrMissingType::MISSING, value
+      assert_equal TalentScout::ModelSearch::MISSING_VALUE, value
     end
   end
 
