@@ -33,8 +33,14 @@ module TalentScout
 
       def initialize(names, type, &block)
         @names = Array(names).map(&:to_s)
-        @type = OrMissingType.new(type.is_a?(Hash) ? ChoiceType.new(type) : type,
-          missing: MISSING_VALUE)
+        @type = case type
+          when :void
+            VoidType.new(missing: MISSING_VALUE)
+          when Hash
+            OrMissingType.new(ChoiceType.new(type), missing: MISSING_VALUE)
+          else
+            OrMissingType.new(type, missing: MISSING_VALUE)
+          end
         @default = MISSING_VALUE
         @block = block
       end

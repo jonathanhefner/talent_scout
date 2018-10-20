@@ -44,6 +44,11 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES.except(:skip_if_neg), search
   end
 
+  def test_results_skips_void_type_criteria
+    search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_false: false))
+    assert_results CRITERIA_VALUES.except(:skip_if_false), search
+  end
+
   private
 
   class MyModel
@@ -90,6 +95,10 @@ class ModelSearchTest < Minitest::Test
     criteria :skip_if_neg, :integer do |x|
       append(:skip_if_neg, x) unless x < 0
     end
+
+    criteria :skip_if_false, :void do
+      append(:skip_if_false, true)
+    end
   end
 
   CRITERIA_VALUES = {
@@ -101,6 +110,7 @@ class ModelSearchTest < Minitest::Test
     choice1_part1: :foo,
     choice1_part2: :bar,
     skip_if_neg: 1,
+    skip_if_false: true,
   }
 
   def assert_results(criteria_values, search)
