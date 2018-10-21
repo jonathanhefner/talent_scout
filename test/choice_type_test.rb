@@ -17,6 +17,14 @@ class ChoiceTypeTest < Minitest::Test
     assert_nil type.cast("BAD")
   end
 
+  def test_choices_with_array
+    type = TalentScout::ChoiceType.new(CHOICES.values)
+    CHOICES.values.each do |expected|
+      assert_equal expected, type.cast(expected)
+      assert_equal expected, type.cast(expected.to_s)
+    end
+  end
+
   def test_choices_with_aliasing_keys
     type = TalentScout::ChoiceType.new({ "foo" => true, foo: true })
     assert_equal true, type.cast("foo")

@@ -36,7 +36,7 @@ module TalentScout
         @type = case type
           when :void
             VoidType.new(missing: MISSING_VALUE)
-          when Hash
+          when Hash, Array
             OrMissingType.new(ChoiceType.new(type), missing: MISSING_VALUE)
           else
             OrMissingType.new(type, missing: MISSING_VALUE)

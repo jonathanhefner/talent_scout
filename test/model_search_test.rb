@@ -75,6 +75,7 @@ class ModelSearchTest < Minitest::Test
     date2_part2: Date.new(2012, 12, 22),
     choice1_part1: :foo,
     choice1_part2: :bar,
+    choice2: 99,
     skip_if_neg: 1,
     skip_if_false: true,
   }
@@ -126,6 +127,10 @@ class ModelSearchTest < Minitest::Test
       default: CRITERIA_DEFAULT_VALUES[:date2_part1]
 
     criteria %i[choice1_part1 choice1_part2], { "foo" => :foo, "bar" => :bar }
+
+    criteria :choice2, [1, 2, 99, 100] do |x|
+      append(:choice2, x)
+    end
 
     criteria :skip_if_neg, :integer do |x|
       append(:skip_if_neg, x) unless x < 0
