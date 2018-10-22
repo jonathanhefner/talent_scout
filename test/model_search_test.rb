@@ -31,7 +31,7 @@ class ModelSearchTest < Minitest::Test
 
   def test_results_with_full_criteria_values
     search = MyModelSearch.new(CRITERIA_VALUES)
-    assert_results CRITERIA_VALUES, search
+    assert_results CRITERIA_VALUES, search.results
   end
 
   def test_results_with_missing_criteria_values
@@ -45,19 +45,26 @@ class ModelSearchTest < Minitest::Test
         else
           CRITERIA_DEFAULT_VALUES.merge(CRITERIA_VALUES.except(name))
         end
-        assert_results expected_values, search
+        assert_results expected_values, search.results
       end
     end
   end
 
+  def test_results_with_base_scope
+    base_params = { base_str1: "hello", base_str2: "world" }
+    base_scope = MyModel.all.where(base_params)
+    search = MyModelSearch.new(CRITERIA_VALUES)
+    assert_results base_params.merge(CRITERIA_VALUES), search.results(base_scope)
+  end
+
   def test_results_skips_conditional_criteria_block
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
-    assert_results CRITERIA_VALUES.except(:skip_if_neg), search
+    assert_results CRITERIA_VALUES.except(:skip_if_neg), search.results
   end
 
   def test_results_skips_void_type_criteria
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_false: false))
-    assert_results CRITERIA_VALUES.except(:skip_if_false), search
+    assert_results CRITERIA_VALUES.except(:skip_if_false), search.results
   end
 
   private
@@ -149,9 +156,9 @@ class ModelSearchTest < Minitest::Test
     model MyModel
   end
 
-  def assert_results(criteria_values, search)
+  def assert_results(criteria_values, results)
     expected = criteria_values.map{|k, v| [k, v, :OK] }.sort_by(&:first)
-    actual = search.results.to_a.sort_by(&:first)
+    actual = results.to_a.sort_by(&:first)
     assert_equal expected, actual
   end
 

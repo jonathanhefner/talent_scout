@@ -20,9 +20,9 @@ module TalentScout
       self.criteria_list << crit
     end
 
-    def results
+    def results(base_scope = self.class.model.all)
       attributes = self.attributes
-      self.class.criteria_list.reduce(self.class.model.all) do |scope, crit|
+      self.class.criteria_list.reduce(base_scope) do |scope, crit|
         crit.apply(scope, attributes)
       end
     end
