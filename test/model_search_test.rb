@@ -25,6 +25,10 @@ class ModelSearchTest < Minitest::Test
     assert_equal MyModel, MyModelSearch.model
   end
 
+  def test_override_model_class
+    assert_equal MyModel, MyOtherModelSearch.model
+  end
+
   def test_results_with_full_criteria_values
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_results CRITERIA_VALUES, search
@@ -139,6 +143,10 @@ class ModelSearchTest < Minitest::Test
     criteria :skip_if_false, :void do
       append(:skip_if_false, true)
     end
+  end
+
+  class MyOtherModelSearch < TalentScout::ModelSearch
+    model MyModel
   end
 
   def assert_results(criteria_values, search)

@@ -5,7 +5,8 @@ module TalentScout
 
     MISSING_VALUE = Object.new
 
-    def self.model
+    def self.model(model = nil)
+      @model = model if model
       @model ||= self.name.chomp("Search").constantize
     end
 
