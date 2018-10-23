@@ -20,6 +20,14 @@ module TalentScout
       self.criteria_list << crit
     end
 
+    def initialize(params = {})
+      if params.is_a?(ActionController::Parameters)
+        params = params.permit(self.class.criteria_list.flat_map(&:names)).
+          reject!{|k, v| v.blank? }
+      end
+      super(params)
+    end
+
     def results(base_scope = self.class.model.all)
       attributes = self.attributes
       self.class.criteria_list.reduce(base_scope) do |scope, crit|

@@ -7,6 +7,25 @@ class ModelSearchTest < Minitest::Test
     assert_kind_of ActiveModel::Model, MyModelSearch.new
   end
 
+  def test_constructor_with_unsafe_controller_params
+    params = ActionController::Parameters.new(CRITERIA_VALUES)
+    refute params.permitted? # sanity check
+    search = MyModelSearch.new(params) # should not raise
+    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+  end
+
+  def test_constructor_with_invalid_controller_params
+    params = ActionController::Parameters.new(CRITERIA_VALUES.merge(bad: "BAD"))
+    search = MyModelSearch.new(params) # should not raise
+    refute_includes search.attributes.symbolize_keys, :bad
+  end
+
+  def test_constructor_ignores_blank_controller_params
+    params = ActionController::Parameters.new(CRITERIA_VALUES.transform_values{ "" })
+    search = MyModelSearch.new(params)
+    assert_equal MyModelSearch.new.attributes, search.attributes
+  end
+
   def test_attribute_assignment_type_casts_values
     search = MyModelSearch.new(CRITERIA_VALUES.transform_values(&:to_s))
     assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
