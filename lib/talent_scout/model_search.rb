@@ -39,6 +39,10 @@ module TalentScout
       self.class.new(self.attributes.merge!(criteria_values.stringify_keys))
     end
 
+    def without(*criteria_names)
+      self.class.new(self.attributes.except!(*criteria_names.map!(&:to_s)))
+    end
+
     private
 
     class Criteria

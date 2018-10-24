@@ -93,6 +93,13 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES, search2.results
   end
 
+  def test_modify_via_without
+    search1 = MyModelSearch.new(CRITERIA_VALUES)
+    search2 = search1.without(*CRITERIA_DEFAULT_VALUES.keys)
+    refute_equal search1.results, search2.results
+    assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2.results
+  end
+
   private
 
   CRITERIA_DEFAULT_VALUES = {
