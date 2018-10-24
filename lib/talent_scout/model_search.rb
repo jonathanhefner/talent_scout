@@ -35,6 +35,10 @@ module TalentScout
       end
     end
 
+    def with(criteria_values)
+      self.class.new(self.attributes.merge!(criteria_values.stringify_keys))
+    end
+
     private
 
     class Criteria

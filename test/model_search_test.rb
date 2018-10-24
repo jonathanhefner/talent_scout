@@ -86,6 +86,13 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES.except(:skip_if_false), search.results
   end
 
+  def test_modify_via_with
+    search1 = MyModelSearch.new
+    search2 = search1.with(CRITERIA_VALUES)
+    refute_equal search1.results, search2.results
+    assert_results CRITERIA_VALUES, search2.results
+  end
+
   private
 
   CRITERIA_DEFAULT_VALUES = {
