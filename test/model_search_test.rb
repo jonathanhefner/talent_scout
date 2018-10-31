@@ -57,6 +57,12 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES, search.results
   end
 
+  def test_inherits_criteria
+    criteria_values = CRITERIA_VALUES.merge(new_str1: "new")
+    search = MyInheritingSearch.new(criteria_values)
+    assert_results criteria_values, search.results
+  end
+
   def test_results_with_missing_criteria_values
     group_regexp = /^(.+?)(?:_part\d)?$/
     groups = CRITERIA_VALUES.keys.group_by{|name| name.to_s[group_regexp, 1] }.values
@@ -145,6 +151,7 @@ class ModelSearchTest < Minitest::Test
       end
 
       def where(args)
+        raise "empty #where args" if args.empty?
         args.reduce(self) do |rel, (name, value)|
           rel.append(name, value)
         end
@@ -194,6 +201,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   class MyInheritingSearch < MyModelSearch
+    criteria :new_str1
   end
 
   def assert_results(criteria_values, results)

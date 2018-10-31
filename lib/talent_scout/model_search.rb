@@ -82,7 +82,7 @@ module TalentScout
     end
 
     def self.criteria_list
-      @criteria_list ||= []
+      @criteria_list ||= self == ModelSearch ? [] : self.superclass.criteria_list.dup
     end
 
   end
