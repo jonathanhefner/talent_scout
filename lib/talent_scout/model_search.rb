@@ -7,7 +7,8 @@ module TalentScout
 
     def self.model(model = nil)
       @model = model if model
-      @model ||= self.name.chomp("Search").constantize
+      @model ||= self.superclass == ModelSearch ?
+        self.name.chomp("Search").constantize : self.superclass.model
     end
 
     def self.criteria(names, type = :string, default: MISSING_VALUE, &block)

@@ -48,6 +48,10 @@ class ModelSearchTest < Minitest::Test
     assert_equal MyModel, MyOtherModelSearch.model
   end
 
+  def test_inherits_model_class
+    assert_equal MyModel, MyInheritingSearch.model
+  end
+
   def test_results_with_full_criteria_values
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_results CRITERIA_VALUES, search.results
@@ -187,6 +191,9 @@ class ModelSearchTest < Minitest::Test
 
   class MyOtherModelSearch < TalentScout::ModelSearch
     model MyModel
+  end
+
+  class MyInheritingSearch < MyModelSearch
   end
 
   def assert_results(criteria_values, results)
