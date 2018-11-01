@@ -26,6 +26,12 @@ class ModelSearchTest < Minitest::Test
     assert_equal MyModelSearch.new.attributes, search.attributes
   end
 
+  def test_constructor_raises_on_invalid_criteria_name
+    assert_raises ActiveModel::UnknownAttributeError do
+      MyModelSearch.new(bad: "BAD")
+    end
+  end
+
   def test_attribute_assignment_type_casts_values
     search = MyModelSearch.new(CRITERIA_VALUES.transform_values(&:to_s))
     assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
@@ -103,11 +109,25 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES, search2.results
   end
 
+  def test_modify_via_with_raises_on_invalid_criteria_name
+    search = MyModelSearch.new
+    assert_raises ActiveModel::UnknownAttributeError do
+      search.with(bad: "BAD")
+    end
+  end
+
   def test_modify_via_without
     search1 = MyModelSearch.new(CRITERIA_VALUES)
     search2 = search1.without(*CRITERIA_DEFAULT_VALUES.keys)
     refute_equal search1.results, search2.results
     assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2.results
+  end
+
+  def test_modify_via_without_raises_on_invalid_criteria_name
+    search = MyModelSearch.new(CRITERIA_VALUES)
+    assert_raises ActiveModel::UnknownAttributeError do
+      search.without(:bad)
+    end
   end
 
   def test_choices_for

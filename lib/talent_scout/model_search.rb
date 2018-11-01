@@ -41,7 +41,12 @@ module TalentScout
     end
 
     def without(*criteria_names)
-      self.class.new(self.attributes.except!(*criteria_names.map!(&:to_s)))
+      attributes = self.attributes
+      criteria_names.map!(&:to_s)
+      criteria_names.each do |name|
+        raise ActiveModel::UnknownAttributeError.new(self, name) if !attributes.key?(name)
+      end
+      self.class.new(attributes.except!(*criteria_names))
     end
 
     def choices_for(criteria_name)
