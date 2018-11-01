@@ -110,7 +110,28 @@ class ModelSearchTest < Minitest::Test
     assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2.results
   end
 
+  def test_choices_for
+    search = MyModelSearch.new
+    CRITERIA_CHOICES.each do |name, choices|
+      assert_equal choices.keys, search.choices_for(name.to_sym)
+      assert_equal choices.keys, search.choices_for(name.to_s)
+    end
+  end
+
+  def test_choices_for_raises_on_invalid_criteria_name
+    search = MyModelSearch.new
+    (CRITERIA_VALUES.keys - CRITERIA_CHOICES.keys + [:bad]).each do |name|
+      assert_raises(ArgumentError){ search.choices_for(name) }
+    end
+  end
+
   private
+
+  CRITERIA_CHOICES = {
+    choice1_part1: { "foo" => :foo, "bar" => :bar },
+    choice1_part2: { "foo" => :foo, "bar" => :bar },
+    choice2: { "1" => 1, "2" => 2, "99" => 99, "100" => 100 },
+  }
 
   CRITERIA_DEFAULT_VALUES = {
     str2: "abcdefault",
@@ -181,9 +202,9 @@ class ModelSearchTest < Minitest::Test
     criteria %i[date2_part1 date2_part2], :date,
       default: CRITERIA_DEFAULT_VALUES[:date2_part1]
 
-    criteria %i[choice1_part1 choice1_part2], { "foo" => :foo, "bar" => :bar }
+    criteria %i[choice1_part1 choice1_part2], CRITERIA_CHOICES[:choice1_part1]
 
-    criteria :choice2, [1, 2, 99, 100] do |x|
+    criteria :choice2, CRITERIA_CHOICES[:choice2].values do |x|
       append(:choice2, x)
     end
 

@@ -13,12 +13,12 @@ module TalentScout
 
     def self.criteria(names, type = :string, default: MISSING_VALUE, &block)
       crit = Criteria.new(names, type, default, &block)
+      self.criteria_list << crit
 
       crit.names.each do |name|
         attribute name, crit.type, default: crit.default
+        self.criteria_by_name[name] = crit
       end
-
-      self.criteria_list << crit
     end
 
     def initialize(params = {})
@@ -44,10 +44,20 @@ module TalentScout
       self.class.new(self.attributes.except!(*criteria_names.map!(&:to_s)))
     end
 
+    def choices_for(criteria_name)
+      crit = self.class.criteria_by_name[criteria_name.to_s]
+      if crit && crit.underlying_type.is_a?(ChoiceType)
+        crit.underlying_type.choices
+      else
+        raise ArgumentError.new("`#{criteria_name}` is not a criteria with choices")
+      end
+    end
+
     private
 
     class Criteria
       attr_reader :names, :type, :default, :block
+      delegate :underlying_type, to: :type
 
       def initialize(names, type, default, &block)
         @names = Array(names).map(&:to_s)
@@ -83,6 +93,11 @@ module TalentScout
 
     def self.criteria_list
       @criteria_list ||= self == ModelSearch ? [] : self.superclass.criteria_list.dup
+    end
+
+    def self.criteria_by_name
+      @criteria_by_name ||= self.superclass == ModelSearch ?
+        {} : self.superclass.criteria_by_name.dup
     end
 
   end

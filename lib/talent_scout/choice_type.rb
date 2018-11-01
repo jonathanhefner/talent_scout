@@ -3,25 +3,25 @@ module TalentScout
 
     attr_reader :choices
 
-    def initialize(choices)
-      @choices =
-        if choices.is_a?(Hash)
-          choices.stringify_keys.merge!(choices) do |key, old_val, new_val|
-            next old_val if old_val == new_val
-            raise ArgumentError.new("Multiple possible values for key #{key.inspect}")
-          end
-        else
-          choices.index_by(&:to_s)
-        end
+    def initialize(mapping)
+      @mapping = mapping.is_a?(Hash) ? mapping.stringify_keys : mapping.index_by(&:to_s)
+      @choices = @mapping.keys.freeze
 
-      @choices.merge!(@choices.values.index_by(&:itself)) do |key, old_val, new_val|
+      if mapping.is_a?(Hash)
+        @mapping.merge!(mapping) do |key, old_val, new_val|
+          next old_val if old_val == new_val
+          raise ArgumentError.new("Multiple possible values for key #{key.inspect}")
+        end
+      end
+
+      @mapping.merge!(@mapping.values.index_by(&:itself)) do |key, old_val, new_val|
         next old_val if old_val == new_val
         raise ArgumentError.new("Value #{key.inspect} is also a key")
       end
     end
 
     def cast(value)
-      super(@choices[value])
+      super(@mapping[value])
     end
 
   end
