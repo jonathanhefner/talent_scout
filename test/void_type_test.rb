@@ -16,15 +16,10 @@ class VoidTypeTest < Minitest::Test
   end
 
   def test_cast_falsey
-    type = TalentScout::VoidType.new(missing: :MISSING)
+    type = TalentScout::VoidType.new
     [false, "false", 0, "0", nil, ""].each do |falsey|
-      assert_equal :MISSING, type.cast(falsey)
+      assert_nil type.cast(falsey)
     end
-  end
-
-  def test_cast_missing
-    type = TalentScout::VoidType.new(missing: :MISSING)
-    assert_equal :MISSING, type.cast(:MISSING)
   end
 
   def test_attribute_assignment

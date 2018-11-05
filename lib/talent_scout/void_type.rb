@@ -1,16 +1,14 @@
 module TalentScout
   class VoidType < ActiveModel::Type::Value
 
-    attr_reader :underlying_type, :missing
+    attr_reader :underlying_type
 
-    def initialize(missing: nil)
+    def initialize
       @underlying_type = ActiveModel::Type.lookup(:boolean)
-      @missing = missing
     end
 
     def cast(value)
-      value = underlying_type.cast(value) unless missing == value
-      super(value || missing)
+      super(underlying_type.cast(value) || nil)
     end
 
   end

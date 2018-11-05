@@ -39,11 +39,7 @@ class ModelSearchTest < Minitest::Test
 
   def test_attribute_default_values
     search = MyModelSearch.new
-    search.attributes.each do |name, value|
-      expected = CRITERIA_DEFAULT_VALUES.fetch(name.to_sym,
-        TalentScout::ModelSearch::MISSING_VALUE)
-      assert_equal expected, value
-    end
+    assert_equal CRITERIA_DEFAULT_VALUES, search.attributes.symbolize_keys.compact
   end
 
   def test_guess_model_class
