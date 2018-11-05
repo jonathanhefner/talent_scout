@@ -70,18 +70,32 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_results_with_missing_criteria_values
-    group_regexp = /^(.+?)(?:_part\d)?$/
-    groups = CRITERIA_VALUES.keys.group_by{|name| name.to_s[group_regexp, 1] }.values
-    groups.each do |group|
-      group.each do |name|
-        search = MyModelSearch.new(CRITERIA_VALUES.except(name))
-        expected_values = if group.none?{|n| CRITERIA_DEFAULT_VALUES.key?(n) }
-          CRITERIA_VALUES.except(*group)
-        else
-          CRITERIA_DEFAULT_VALUES.merge(CRITERIA_VALUES.except(name))
-        end
-        assert_results expected_values, search.results
-      end
+    CRITERIA_VALUES.keys.each do |name|
+      search = MyModelSearch.new(CRITERIA_VALUES.except(name))
+      expected_values = CRITERIA_DEFAULT_VALUES.key?(name) ?
+        CRITERIA_VALUES.merge(name => CRITERIA_DEFAULT_VALUES[name]) :
+        CRITERIA_VALUES.except(*CRITERIA_GROUPINGS[name])
+      assert_results expected_values, search.results
+    end
+  end
+
+  def test_results_with_explicit_nil_criteria_values
+    nilable = CRITERIA_VALUES.keys.grep(/^(?:str|date)\d/)
+    refute_empty nilable # sanity check
+    nilable.each do |name|
+      criteria_values = CRITERIA_VALUES.merge(name => nil)
+      search = MyModelSearch.new(criteria_values)
+      assert_results criteria_values, search.results
+    end
+  end
+
+  def test_results_with_invalid_criteria_values
+    fallible = CRITERIA_VALUES.keys.grep(/^(?:date|choice)\d/)
+    refute_empty fallible # sanity check
+    fallible.each do |name|
+      search = MyModelSearch.new(CRITERIA_VALUES.merge(name => "BAD"))
+      expected_values = CRITERIA_VALUES.except(*CRITERIA_GROUPINGS[name])
+      assert_results expected_values, search.results
     end
   end
 
@@ -174,6 +188,12 @@ class ModelSearchTest < Minitest::Test
     skip_if_neg: 1,
     skip_if_false: true,
   }
+
+  CRITERIA_GROUPINGS = CRITERIA_VALUES.keys.group_by do |name|
+    name.to_s[/^(.+?)(?:_part\d)?$/, 1]
+  end.values.flat_map do |grouping|
+    grouping.map{|name| [name, grouping] }
+  end.to_h
 
   class MyModel
     def self.all
