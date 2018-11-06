@@ -16,6 +16,16 @@ module TalentScout
 
       crit.names.each do |name|
         attribute name, crit.type, { default: default }.compact
+
+        # HACK FormBuilder#select uses normal attribute readers instead
+        # of `*_before_type_cast` attribute readers.  This breaks value
+        # auto-selection for types where the two are appreciably
+        # different, e.g. ChoiceType with hash mapping.  Work around by
+        # aliasing relevant attribute readers to `*_before_type_cast`.
+        if crit.type.is_a?(ChoiceType)
+          alias_method name, "#{name}_before_type_cast"
+        end
+
         self.criteria_by_name[name] = crit
       end
     end
