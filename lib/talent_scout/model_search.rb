@@ -2,6 +2,7 @@ module TalentScout
   class ModelSearch
     include ActiveModel::Model
     include ActiveModel::Attributes
+    include ActiveRecord::AttributeMethods::BeforeTypeCast
 
     def self.model(model = nil)
       @model = model if model

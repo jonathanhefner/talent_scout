@@ -37,6 +37,14 @@ class ModelSearchTest < Minitest::Test
     assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
   end
 
+  def test_attribute_value_before_type_cast_readers
+    before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
+    search = MyModelSearch.new(before_type_cast)
+    before_type_cast.each do |name, value|
+      assert_equal value, search.send("#{name}_before_type_cast")
+    end
+  end
+
   def test_attribute_default_values
     search = MyModelSearch.new
     assert_equal CRITERIA_DEFAULT_VALUES, search.attributes.symbolize_keys.compact
