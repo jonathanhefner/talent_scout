@@ -37,6 +37,24 @@ class ModelSearchTest < Minitest::Test
     assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
   end
 
+  def test_attribute_assignment_type_casts_multiparameter_values
+    multiparameter = CRITERIA_VALUES.flat_map do |name, value|
+      case value
+      when Date
+        %i[year month day].each_with_index.
+          map{|part, i| ["#{name}(#{i + 1})", value.send(part).to_s] }
+      when DateTime, Time
+        %i[year month day hour min sec].each_with_index.
+          map{|part, i| ["#{name}(#{i + 1})", value.send(part).to_s] }
+      else
+        [[name, value]]
+      end
+    end.to_h
+
+    search = MyModelSearch.new(multiparameter)
+    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+  end
+
   def test_attribute_value_before_type_cast_readers
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)
@@ -186,6 +204,7 @@ class ModelSearchTest < Minitest::Test
     date1_part2: Date.new(2000, 01, 01),
     date2_part1: Date.new(2012, 12, 21),
     date2_part2: Date.new(2012, 12, 22),
+    datetime1: DateTime.new(2038, 01, 19, 03, 14, 07, 0000).utc,
     choice1_part1: :foo,
     choice1_part2: :bar,
     choice2: 99,
@@ -245,6 +264,8 @@ class ModelSearchTest < Minitest::Test
 
     criteria %i[date2_part1 date2_part2], :date,
       default: CRITERIA_DEFAULT_VALUES[:date2_part1]
+
+    criteria :datetime1, :datetime
 
     criteria %i[choice1_part1 choice1_part2], CRITERIA_CHOICES[:choice1_part1]
 

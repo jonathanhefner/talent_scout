@@ -2,6 +2,7 @@ module TalentScout
   class ModelSearch
     include ActiveModel::Model
     include ActiveModel::Attributes
+    include ActiveRecord::AttributeAssignment
     include ActiveRecord::AttributeMethods::BeforeTypeCast
 
     def self.model(model = nil)
@@ -81,7 +82,7 @@ module TalentScout
           when Hash, Array
             ChoiceType.new(type)
           else
-            ActiveModel::Type.lookup(type)
+            ActiveRecord::Type.lookup(type)
           end
         @block = block
       end
