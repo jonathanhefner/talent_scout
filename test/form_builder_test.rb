@@ -3,6 +3,10 @@ require "talent_scout"
 
 class FormBuilderTest < ActionView::TestCase
 
+  def test_form_action_points_to_model_controller
+    assert_equal form_with(model: MyModel.new), form_with(model: MyModelSearch.new)
+  end
+
   def test_form_uses_value_before_type_cast
     before_type_cast = "December 31, 1999"
     search = MyModelSearch.new(date1: before_type_cast)
@@ -22,6 +26,7 @@ class FormBuilderTest < ActionView::TestCase
   private
 
   class MyModel
+    include ActiveModel::Model
   end
 
   class MyModelSearch < TalentScout::ModelSearch
@@ -29,8 +34,12 @@ class FormBuilderTest < ActionView::TestCase
     criteria :choice1, { "one" => 1, "two" => 2, "three" => 3 }
   end
 
+  def form_builder_test_my_models_path(*args) # mock route helper
+    "/#{MyModel.model_name.route_key}"
+  end
+
   def make_form(search)
-    form_with(model: search, url: "/"){|form| return form }
+    form_with(model: search){|form| return form }
   end
 
 end

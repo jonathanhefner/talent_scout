@@ -11,6 +11,10 @@ module TalentScout
         self.name.chomp("Search").constantize : self.superclass.model
     end
 
+    def self.model_name
+      @model_name ||= ModelName.new(self)
+    end
+
     def self.criteria(names, type = :string, default: nil, &block)
       crit = Criteria.new(names, type, &block)
       self.criteria_list << crit
