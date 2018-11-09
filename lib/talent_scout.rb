@@ -1,6 +1,7 @@
 require "talent_scout/version"
 require "talent_scout/choice_type"
 require "talent_scout/void_type"
+require "talent_scout/criteria"
 require "talent_scout/model_search"
 require "talent_scout/controller"
 require "talent_scout/railtie"
