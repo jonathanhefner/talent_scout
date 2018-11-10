@@ -7,6 +7,13 @@ class FormBuilderTest < ActionView::TestCase
     assert_equal form_with(model: MyModel.new), form_with(model: MyModelSearch.new)
   end
 
+  def test_form_uses_specified_params_wrapper
+    field_name = :date1
+    expected = text_field TalentScout::ModelName::PARAM_KEY, field_name
+    actual = make_form(MyModelSearch.new).text_field(field_name)
+    assert_equal expected, actual
+  end
+
   def test_form_uses_value_before_type_cast
     before_type_cast = "December 31, 1999"
     search = MyModelSearch.new(date1: before_type_cast)
