@@ -1,0 +1,5 @@
+en:
+  helpers:
+    submit:
+      <%= config[:param_key] %>:
+        create: "Search"

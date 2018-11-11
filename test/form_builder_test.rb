@@ -30,6 +30,11 @@ class FormBuilderTest < ActionView::TestCase
     assert_includes field, selected
   end
 
+  def test_submit_button_default_text
+    form = make_form(MyModelSearch.new)
+    assert_equal form.submit("Search"), form.submit
+  end
+
   private
 
   class MyModel

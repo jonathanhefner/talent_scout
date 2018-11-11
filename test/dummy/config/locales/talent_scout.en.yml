@@ -1,0 +1,5 @@
+en:
+  helpers:
+    submit:
+      q:
+        create: "Search"
