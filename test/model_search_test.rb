@@ -166,18 +166,31 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_choices_for
-    search = MyModelSearch.new
-    CRITERIA_CHOICES.each do |name, choices|
-      assert_equal choices.keys, search.choices_for(name.to_sym)
-      assert_equal choices.keys, search.choices_for(name.to_s)
+  def test_each_choice
+    chosen = CRITERIA_CHOICES.transform_values{|mapping| mapping.keys[1] }
+    search = MyModelSearch.new(chosen)
+
+    CRITERIA_CHOICES.each do |name, mapping|
+      expected = mapping.keys.map{|choice| [choice.to_s, choice == chosen[name]] }
+
+      assert_equal expected, search.each_choice(name.to_sym).to_a
+      assert_equal expected, search.each_choice(name.to_s).to_a
     end
   end
 
-  def test_choices_for_raises_on_invalid_criteria_name
+  def test_each_choice_block_and_enum_are_equivalent
+    criteria = CRITERIA_CHOICES.keys.first
+    search = MyModelSearch.new
+    expected = []
+    search.each_choice(criteria){|*x| expected << x }
+    assert_instance_of Enumerator, search.each_choice(criteria)
+    assert_equal expected, search.each_choice(criteria).to_a
+  end
+
+  def test_each_choice_raises_on_invalid_criteria_name
     search = MyModelSearch.new
     (CRITERIA_VALUES.keys - CRITERIA_CHOICES.keys + [:bad]).each do |name|
-      assert_raises(ArgumentError){ search.choices_for(name) }
+      assert_raises(ArgumentError){ search.each_choice(name) }
     end
   end
 

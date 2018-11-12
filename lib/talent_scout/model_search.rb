@@ -30,8 +30,6 @@ module TalentScout
         if crit.type.is_a?(ChoiceType)
           alias_method name, "#{name}_before_type_cast"
         end
-
-        self.criteria_by_name[name] = crit
       end
     end
 
@@ -62,12 +60,17 @@ module TalentScout
       self.class.new(attributes.except!(*criteria_names))
     end
 
-    def choices_for(criteria_name)
-      crit = self.class.criteria_by_name[criteria_name.to_s]
-      if crit && crit.type.is_a?(ChoiceType)
-        crit.type.choices
-      else
+    def each_choice(criteria_name)
+      criteria_name = criteria_name.to_s
+      type = self.class.attribute_types.fetch(criteria_name, nil)
+      unless type.is_a?(ChoiceType)
         raise ArgumentError.new("`#{criteria_name}` is not a criteria with choices")
+      end
+      return to_enum(:each_choice, criteria_name) unless block_given?
+
+      type.choices.each do |choice|
+        chosen = type.cast(choice) == attribute_set[criteria_name].value
+        yield choice, chosen
       end
     end
 
@@ -75,11 +78,6 @@ module TalentScout
 
     def self.criteria_list
       @criteria_list ||= self == ModelSearch ? [] : self.superclass.criteria_list.dup
-    end
-
-    def self.criteria_by_name
-      @criteria_by_name ||= self.superclass == ModelSearch ?
-        {} : self.superclass.criteria_by_name.dup
     end
 
     def attribute_set

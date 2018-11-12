@@ -22,10 +22,19 @@ class FormBuilderTest < ActionView::TestCase
     assert_includes field, before_type_cast
   end
 
+  def test_select_accepts_each_choice_raw_enum
+    search = MyModelSearch.new
+    each_choice = search.each_choice(:choice1)
+    choices = each_choice.to_a.map(&:first)
+    form = make_form(search)
+    assert_equal options_for_select(choices), options_for_select(each_choice)
+    assert_equal form.select(:choice1, choices), form.select(:choice1, each_choice)
+  end
+
   def test_select_selects_value_before_type_cast
     before_type_cast = "two"
     search = MyModelSearch.new(choice1: before_type_cast)
-    field = make_form(search).select(:choice1, search.choices_for(:choice1))
+    field = make_form(search).select(:choice1, search.each_choice(:choice1))
     selected = options_for_select([before_type_cast], selected: before_type_cast)
     assert_includes field, selected
   end
