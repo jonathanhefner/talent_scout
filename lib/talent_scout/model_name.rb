@@ -1,10 +1,8 @@
 module TalentScout
   class ModelName < ActiveModel::Name
 
-    PARAM_KEY = "q"
-
     def param_key
-      PARAM_KEY
+      TalentScout::PARAM_KEY
     end
 
     def route_key

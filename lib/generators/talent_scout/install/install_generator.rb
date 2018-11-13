@@ -5,7 +5,7 @@ module TalentScout
 
       def copy_locales
         template "config/locales/talent_scout.en.yml",
-          { param_key: TalentScout::ModelName::PARAM_KEY }
+          { param_key: TalentScout::PARAM_KEY }
       end
     end
   end

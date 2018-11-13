@@ -9,7 +9,7 @@ class FormBuilderTest < ActionView::TestCase
 
   def test_form_uses_specified_params_wrapper
     field_name = :date1
-    expected = text_field TalentScout::ModelName::PARAM_KEY, field_name
+    expected = text_field TalentScout::PARAM_KEY, field_name
     actual = make_form(MyModelSearch.new).text_field(field_name)
     assert_equal expected, actual
   end
