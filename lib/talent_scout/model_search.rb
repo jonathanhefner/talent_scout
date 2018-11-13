@@ -74,6 +74,11 @@ module TalentScout
       end
     end
 
+    def to_query_params
+      attribute_set.values_before_type_cast.
+        select{|key, value| attribute_set[key].changed? }
+    end
+
     private
 
     def self.criteria_list

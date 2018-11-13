@@ -194,6 +194,18 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_to_query_params_returns_values_before_type_cast
+    before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
+    search = MyModelSearch.new(before_type_cast)
+    assert_equal before_type_cast.stringify_keys, search.to_query_params
+  end
+
+  def test_to_query_params_ignores_default_values
+    default_values = CRITERIA_VALUES.transform_values{ nil }.merge(CRITERIA_DEFAULT_VALUES)
+    search = MyModelSearch.new(default_values)
+    assert_equal Hash.new, search.to_query_params
+  end
+
   private
 
   CRITERIA_CHOICES = {
