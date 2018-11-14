@@ -4,6 +4,10 @@ module TalentScout
       ActiveSupport.on_load :action_controller do
         include TalentScout::Controller
       end
+
+      ActiveSupport.on_load :action_view do
+        include TalentScout::Helper
+      end
     end
   end
 end

@@ -5,6 +5,7 @@ require "talent_scout/criteria"
 require "talent_scout/model_name"
 require "talent_scout/model_search"
 require "talent_scout/controller"
+require "talent_scout/helper"
 require "talent_scout/railtie"
 
 
