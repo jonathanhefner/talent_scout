@@ -209,8 +209,8 @@ class ModelSearchTest < Minitest::Test
   private
 
   CRITERIA_CHOICES = {
-    choice1_part1: { "foo" => :foo, "bar" => :bar },
-    choice1_part2: { "foo" => :foo, "bar" => :bar },
+    choice1_part1: { foo: "foo", bar: "bar" },
+    choice1_part2: { foo: "foo", bar: "bar" },
     choice2: { "1" => 1, "2" => 2, "99" => 99, "100" => 100 },
   }
 
@@ -230,8 +230,8 @@ class ModelSearchTest < Minitest::Test
     date2_part1: Date.new(2012, 12, 21),
     date2_part2: Date.new(2012, 12, 22),
     datetime1: DateTime.new(2038, 01, 19, 03, 14, 07, 0000).utc,
-    choice1_part1: :foo,
-    choice1_part2: :bar,
+    choice1_part1: "foo",
+    choice1_part2: "bar",
     choice2: 99,
     skip_if_neg: 1,
     skip_if_false: true,
@@ -292,9 +292,9 @@ class ModelSearchTest < Minitest::Test
 
     criteria :datetime1, :datetime
 
-    criteria %i[choice1_part1 choice1_part2], CRITERIA_CHOICES[:choice1_part1]
+    criteria %i[choice1_part1 choice1_part2], choices: CRITERIA_CHOICES[:choice1_part1]
 
-    criteria :choice2, CRITERIA_CHOICES[:choice2].values do |x|
+    criteria :choice2, choices: CRITERIA_CHOICES[:choice2].values do |x|
       append(:choice2, x)
     end
 

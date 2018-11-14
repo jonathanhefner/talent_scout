@@ -15,12 +15,19 @@ module TalentScout
       @model_name ||= ModelName.new(self)
     end
 
-    def self.criteria(names, type = :string, default: nil, &block)
+    def self.criteria(names, type = :string, choices: nil, **attribute_options, &block)
+      if choices
+        if type != :string
+          raise ArgumentError.new("Option :choices cannot be used with type #{type}")
+        end
+        type = ChoiceType.new(choices)
+      end
+
       crit = Criteria.new(names, type, &block)
       self.criteria_list << crit
 
       crit.names.each do |name|
-        attribute name, crit.type, { default: default }.compact
+        attribute name, crit.type, attribute_options
 
         # HACK FormBuilder#select uses normal attribute readers instead
         # of `*_before_type_cast` attribute readers.  This breaks value

@@ -10,8 +10,6 @@ module TalentScout
           type
         when :void
           VoidType.new
-        when Hash, Array
-          ChoiceType.new(type)
         else
           ActiveRecord::Type.lookup(type)
         end
