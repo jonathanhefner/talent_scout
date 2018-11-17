@@ -6,9 +6,9 @@ class ChoiceTypeTest < Minitest::Test
   def test_cast_with_valid_value
     type = TalentScout::ChoiceType.new(MAPPING)
     MAPPING.each do |value, expected|
-      assert_equal expected, type.cast(expected)
-      assert_equal expected, type.cast(value)
+      assert_equal expected, type.cast(value.to_sym)
       assert_equal expected, type.cast(value.to_s)
+      assert_equal expected, type.cast(expected)
     end
   end
 
@@ -17,48 +17,22 @@ class ChoiceTypeTest < Minitest::Test
     assert_nil type.cast("BAD")
   end
 
+  def test_mapping_with_hash
+    type = TalentScout::ChoiceType.new(MAPPING)
+    assert_kind_of Hash, type.mapping
+    assert_equal MAPPING.stringify_keys.to_a, type.mapping.to_a
+  end
+
   def test_mapping_with_array
     type = TalentScout::ChoiceType.new(MAPPING.values)
-    MAPPING.values.each do |expected|
-      assert_equal expected, type.cast(expected)
-      assert_equal expected, type.cast(expected.to_s)
-    end
+    assert_kind_of Hash, type.mapping
+    assert_equal MAPPING.values.index_by(&:to_s).to_a, type.mapping.to_a
   end
 
-  def test_mapping_with_aliasing_keys
-    type = TalentScout::ChoiceType.new({ "foo" => true, foo: true })
-    assert_equal true, type.cast("foo")
-    assert_equal true, type.cast(:foo)
-  end
-
-  def test_mapping_with_conflicting_values
+  def test_mapping_with_nonstring_nonsymbol_keys
     assert_raises(ArgumentError) do
-      TalentScout::ChoiceType.new({ "foo" => true, foo: false })
+      TalentScout::ChoiceType.new({ 1 => 1 })
     end
-  end
-
-  def test_mapping_with_self_referential_key
-    type = TalentScout::ChoiceType.new({ "foo" => true, true => true })
-    assert_equal true, type.cast("foo")
-    assert_equal true, type.cast(true)
-  end
-
-  def test_mapping_with_ambiguous_key_value
-    assert_raises(ArgumentError) do
-      TalentScout::ChoiceType.new({ "foo" => true, true => 2 })
-    end
-  end
-
-  def test_choices_with_hash_mapping
-    type = TalentScout::ChoiceType.new(MAPPING)
-    assert_equal MAPPING.keys.map(&:to_s), type.choices
-    assert type.choices.frozen?
-  end
-
-  def test_choices_with_array_mapping
-    type = TalentScout::ChoiceType.new(MAPPING.values)
-    assert_equal MAPPING.values.map(&:to_s), type.choices
-    assert type.choices.frozen?
   end
 
   def test_attribute_assignment

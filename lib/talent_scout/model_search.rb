@@ -75,8 +75,8 @@ module TalentScout
       end
       return to_enum(:each_choice, criteria_name) unless block_given?
 
-      type.choices.each do |choice|
-        chosen = type.cast(choice) == attribute_set[criteria_name].value
+      type.mapping.each do |choice, value|
+        chosen = value == attribute_set[criteria_name].value
         yield choice, chosen
       end
     end
