@@ -35,6 +35,13 @@ class ChoiceTypeTest < Minitest::Test
     end
   end
 
+  def test_mapping_after_dup
+    type1 = TalentScout::ChoiceType.new(MAPPING)
+    type2 = type1.dup
+    assert_equal type1.mapping, type2.mapping
+    refute_same type1.mapping, type2.mapping
+  end
+
   def test_attribute_assignment
     params = { choice1: MAPPING.first[0].to_s }
     expected = MAPPING.first[1]
