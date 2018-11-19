@@ -14,6 +14,13 @@ class OrderTypeTest < Minitest::Test
     assert_equal orders.map(&:base_name), type.orders.map(&:base_name)
   end
 
+  def test_orders_after_dup
+    type1 = make_type(COLUMNS)
+    type2 = type1.dup
+    assert_equal type1.orders, type2.orders
+    refute_same type1.orders, type2.orders
+  end
+
   def test_mapping_after_add_order
     orders = make_orders(COLUMNS)
     type = make_type(COLUMNS)
@@ -22,6 +29,13 @@ class OrderTypeTest < Minitest::Test
     end
     assert_kind_of Hash, type.mapping
     assert_equal expected, type.mapping.to_a
+  end
+
+  def test_mapping_after_dup
+    type1 = make_type(COLUMNS)
+    type2 = type1.dup
+    assert_equal type1.mapping, type2.mapping
+    refute_same type1.mapping, type2.mapping
   end
 
   private

@@ -8,6 +8,11 @@ module TalentScout
       super({})
     end
 
+    def initialize_copy(orig)
+      super
+      @orders = @orders.dup
+    end
+
     def add_order(name, columns, **options)
       order = Order.new(name, columns, options)
       orders << order
