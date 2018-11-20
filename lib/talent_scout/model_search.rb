@@ -21,20 +21,27 @@ module TalentScout
           raise ArgumentError.new("Option :choices cannot be used with type #{type}")
         end
         type = ChoiceType.new(choices)
+      elsif type == :void
+        type = VoidType.new
+      elsif type.is_a?(Symbol)
+        # HACK force ActiveRecord::Type.lookup because datetime types
+        # from ActiveModel::Type.lookup don't support multi-parameter
+        # attribute assignment
+        type = ActiveRecord::Type.lookup(type)
       end
 
-      crit = Criteria.new(names, type, &block)
+      crit = Criteria.new(names, !type.is_a?(VoidType), &block)
       self.criteria_list << crit
 
       crit.names.each do |name|
-        attribute name, crit.type, attribute_options
+        attribute name, type, attribute_options
 
         # HACK FormBuilder#select uses normal attribute readers instead
         # of `*_before_type_cast` attribute readers.  This breaks value
         # auto-selection for types where the two are appreciably
         # different, e.g. ChoiceType with hash mapping.  Work around by
         # aliasing relevant attribute readers to `*_before_type_cast`.
-        if crit.type.is_a?(ChoiceType)
+        if type.is_a?(ChoiceType)
           alias_method name, "#{name}_before_type_cast"
         end
       end

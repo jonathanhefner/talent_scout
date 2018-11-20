@@ -1,18 +1,11 @@
 module TalentScout
   class Criteria
 
-    attr_reader :names, :type, :block
+    attr_reader :names, :allow_nil, :block
 
-    def initialize(names, type, &block)
+    def initialize(names, allow_nil, &block)
       @names = Array(names).map(&:to_s)
-      @type = case type
-        when ActiveModel::Type::Value
-          type
-        when :void
-          VoidType.new
-        else
-          ActiveRecord::Type.lookup(type)
-        end
+      @allow_nil = allow_nil
       @block = block
     end
 
@@ -38,11 +31,7 @@ module TalentScout
       names.all? do |name|
         attribute = attribute_set[name]
         if attribute.came_from_user?
-          if type.is_a?(TalentScout::VoidType)
-            !attribute.value.nil?
-          else
-            !attribute.value.nil? || attribute.value_before_type_cast.nil?
-          end
+          !attribute.value.nil? || (allow_nil && attribute.value_before_type_cast.nil?)
         end
       end
     end
