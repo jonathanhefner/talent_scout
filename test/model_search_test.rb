@@ -82,13 +82,13 @@ class ModelSearchTest < Minitest::Test
 
   def test_results_with_full_criteria_values
     search = MyModelSearch.new(CRITERIA_VALUES)
-    assert_results CRITERIA_VALUES, search.results
+    assert_results CRITERIA_VALUES, search
   end
 
   def test_inherits_criteria
     criteria_values = CRITERIA_VALUES.merge(new_str1: "new")
     search = MyInheritingSearch.new(criteria_values)
-    assert_results criteria_values, search.results
+    assert_results criteria_values, search
   end
 
   def test_results_with_missing_criteria_values
@@ -97,7 +97,7 @@ class ModelSearchTest < Minitest::Test
       expected_values = CRITERIA_DEFAULT_VALUES.key?(name) ?
         CRITERIA_VALUES.merge(name => CRITERIA_DEFAULT_VALUES[name]) :
         CRITERIA_VALUES.except(*CRITERIA_GROUPINGS[name])
-      assert_results expected_values, search.results
+      assert_results expected_values, search
     end
   end
 
@@ -107,7 +107,7 @@ class ModelSearchTest < Minitest::Test
     nilable.each do |name|
       criteria_values = CRITERIA_VALUES.merge(name => nil)
       search = MyModelSearch.new(criteria_values)
-      assert_results criteria_values, search.results
+      assert_results criteria_values, search
     end
   end
 
@@ -117,32 +117,34 @@ class ModelSearchTest < Minitest::Test
     fallible.each do |name|
       search = MyModelSearch.new(CRITERIA_VALUES.merge(name => "BAD"))
       expected_values = CRITERIA_VALUES.except(*CRITERIA_GROUPINGS[name])
-      assert_results expected_values, search.results
+      assert_results expected_values, search
     end
   end
 
   def test_results_with_base_scope
     base_params = { base_str1: "hello", base_str2: "world" }
     base_scope = MyModel.all.where(base_params)
-    search = MyModelSearch.new(CRITERIA_VALUES)
-    assert_results base_params.merge(CRITERIA_VALUES), search.results(base_scope)
+    criteria_values = base_params.merge(CRITERIA_VALUES)
+    assert_results criteria_values, MyModelSearch.new(CRITERIA_VALUES) do |search|
+      search.results(base_scope)
+    end
   end
 
   def test_results_skips_conditional_criteria_block
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
-    assert_results CRITERIA_VALUES.except(:skip_if_neg), search.results
+    assert_results CRITERIA_VALUES.except(:skip_if_neg), search
   end
 
   def test_results_skips_void_type_criteria
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_false: false))
-    assert_results CRITERIA_VALUES.except(:skip_if_false), search.results
+    assert_results CRITERIA_VALUES.except(:skip_if_false), search
   end
 
   def test_modify_via_with
     search1 = MyModelSearch.new
     search2 = search1.with(CRITERIA_VALUES)
     refute_equal search1.results, search2.results
-    assert_results CRITERIA_VALUES, search2.results
+    assert_results CRITERIA_VALUES, search2
   end
 
   def test_modify_via_with_raises_on_invalid_criteria_name
@@ -156,7 +158,7 @@ class ModelSearchTest < Minitest::Test
     search1 = MyModelSearch.new(CRITERIA_VALUES)
     search2 = search1.without(*CRITERIA_DEFAULT_VALUES.keys)
     refute_equal search1.results, search2.results
-    assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2.results
+    assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2
   end
 
   def test_modify_via_without_raises_on_invalid_criteria_name
@@ -315,8 +317,12 @@ class ModelSearchTest < Minitest::Test
     criteria :new_str1
   end
 
-  def assert_results(criteria_values, results)
-    expected = criteria_values.map{|k, v| [k, v, :OK] }.sort_by(&:first)
+  def assert_results(criteria_values, search)
+    results = block_given? ? yield(search) : search.results
+    expected = criteria_values.map do |key, value|
+      type = search.class.attribute_types[key.to_s]
+      [key, type.cast(value), :OK]
+    end.sort_by(&:first)
     actual = results.to_a.sort_by(&:first)
     assert_equal expected, actual
   end
