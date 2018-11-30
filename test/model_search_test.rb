@@ -11,7 +11,7 @@ class ModelSearchTest < Minitest::Test
     params = ActionController::Parameters.new(CRITERIA_VALUES)
     refute params.permitted? # sanity check
     search = MyModelSearch.new(params) # should not raise
-    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+    assert_attributes CRITERIA_VALUES, search
   end
 
   def test_constructor_with_invalid_controller_params
@@ -34,7 +34,7 @@ class ModelSearchTest < Minitest::Test
 
   def test_attribute_assignment_type_casts_values
     search = MyModelSearch.new(CRITERIA_VALUES.transform_values(&:to_s))
-    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+    assert_attributes CRITERIA_VALUES, search
   end
 
   def test_attribute_assignment_type_casts_multiparameter_values
@@ -52,7 +52,7 @@ class ModelSearchTest < Minitest::Test
     end.to_h
 
     search = MyModelSearch.new(multiparameter)
-    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+    assert_attributes CRITERIA_VALUES, search
   end
 
   def test_attribute_value_before_type_cast_readers
@@ -64,8 +64,9 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_attribute_default_values
-    search = MyModelSearch.new
-    assert_equal CRITERIA_DEFAULT_VALUES, search.attributes.symbolize_keys.compact
+    assert_attributes CRITERIA_DEFAULT_VALUES, MyModelSearch.new do |search|
+      search.attributes.compact
+    end
   end
 
   def test_guess_model_class
@@ -315,6 +316,15 @@ class ModelSearchTest < Minitest::Test
 
   class MyInheritingSearch < MyModelSearch
     criteria :new_str1
+  end
+
+  def assert_attributes(criteria_values, search)
+    attributes = block_given? ? yield(search) : search.attributes
+    expected = criteria_values.map do |key, value|
+      type = search.class.attribute_types[key.to_s]
+      [key.to_s, type.cast(value)]
+    end.to_h
+    assert_equal expected, attributes
   end
 
   def assert_results(criteria_values, search)
