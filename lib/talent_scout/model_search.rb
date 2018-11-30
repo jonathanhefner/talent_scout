@@ -47,6 +47,19 @@ module TalentScout
       end
     end
 
+    def self.order(name, columns = nil, **options)
+      @order_type ||= begin
+        if attribute_types.key?("order") # if inheriting
+          attribute "order", attribute_types["order"].dup # override type
+        else
+          criteria "order", OrderType.new, &:order
+        end
+        attribute_types["order"]
+      end
+
+      @order_type.add_order(name, columns, options)
+    end
+
     def initialize(params = {})
       if params.is_a?(ActionController::Parameters)
         params = params.permit(self.class.criteria_list.flat_map(&:names)).

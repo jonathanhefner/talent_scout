@@ -197,6 +197,12 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_order_choices_are_inherited
+    expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1", "new_col1_desc"]
+    actual = MyInheritingSearch.new.each_choice(:order).to_a.map(&:first)
+    assert_equal expected, actual
+  end
+
   def test_to_query_params_returns_values_before_type_cast
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)
@@ -215,6 +221,13 @@ class ModelSearchTest < Minitest::Test
     choice1_part1: { foo: "foo", bar: "bar" },
     choice1_part2: { foo: "foo", bar: "bar" },
     choice2: { "1" => 1, "2" => 2, "99" => 99, "100" => 100 },
+    order: %w"col1 col1_desc col2 col2_desc random random_is_random".index_by(&:to_sym),
+  }
+
+  ORDER_COLUMNS = {
+    col1: ["col1"],
+    col2: ["col2", "col1 ASC"],
+    random: ["RAND()"],
   }
 
   CRITERIA_DEFAULT_VALUES = {
@@ -238,6 +251,7 @@ class ModelSearchTest < Minitest::Test
     choice2: 99,
     skip_if_neg: 1,
     skip_if_false: true,
+    order: "col2",
   }
 
   CRITERIA_GROUPINGS = CRITERIA_VALUES.keys.group_by do |name|
@@ -265,8 +279,13 @@ class ModelSearchTest < Minitest::Test
       def where(args)
         raise "empty #where args" if args.empty?
         args.reduce(self) do |rel, (name, value)|
+          raise "order passed to #where" if name == :order
           rel.append(name, value)
         end
+      end
+
+      def order(arg)
+        append(:order, arg)
       end
 
       def date1(x, y)
@@ -308,6 +327,10 @@ class ModelSearchTest < Minitest::Test
     criteria :skip_if_false, :void do
       append(:skip_if_false, true)
     end
+
+    order :col1
+    order :col2, ORDER_COLUMNS[:col2]
+    order :random, ORDER_COLUMNS[:random], desc_suffix: "_is_random"
   end
 
   class MyOtherModelSearch < TalentScout::ModelSearch
@@ -316,6 +339,8 @@ class ModelSearchTest < Minitest::Test
 
   class MyInheritingSearch < MyModelSearch
     criteria :new_str1
+
+    order :new_col1
   end
 
   def assert_attributes(criteria_values, search)
