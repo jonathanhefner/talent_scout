@@ -4,7 +4,7 @@ module TalentScout
     attr_reader :orders
 
     def initialize()
-      @orders = []
+      @orders = ActiveSupport::HashWithIndifferentAccess.new
       super({})
     end
 
@@ -15,11 +15,9 @@ module TalentScout
 
     def add_order(name, columns, **options)
       order = Order.new(name, columns, options)
-      orders << order
-
+      orders[order.base_name] = order
       mapping[order.asc_name] = order.asc_value
       mapping[order.desc_name] = order.desc_value
-
       order
     end
 

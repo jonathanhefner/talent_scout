@@ -11,7 +11,7 @@ class OrderTypeTest < Minitest::Test
   def test_orders_after_add_order
     orders = make_orders(COLUMNS)
     type = make_type(COLUMNS)
-    assert_equal orders.map(&:base_name), type.orders.map(&:base_name)
+    assert_equal orders.map(&:base_name), type.orders.keys
   end
 
   def test_orders_after_dup

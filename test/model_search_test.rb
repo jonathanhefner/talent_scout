@@ -203,6 +203,36 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, actual
   end
 
+  def test_order_directions
+    choice_directions = CRITERIA_CHOICES[:order].keys.zip([:asc, :desc].cycle).to_h
+    order_choices = ORDER_COLUMNS.keys.zip(CRITERIA_CHOICES[:order].keys.each_slice(2))
+    expected_base = ORDER_COLUMNS.transform_values{ nil }.with_indifferent_access
+
+    order_choices.each do |order, choices|
+      (choices.map(&:to_sym) + choices.map(&:to_s)).each do |choice|
+        search = MyModelSearch.new(order: choice)
+        expected = expected_base.merge(order => choice_directions[choice.to_sym])
+        assert_equal expected, search.order_directions
+      end
+    end
+  end
+
+  def test_order_directions_with_no_order_specified
+    search = MyModelSearch.new
+    expected = ORDER_COLUMNS.transform_values{ nil }.with_indifferent_access
+    assert_equal expected, search.order_directions
+  end
+
+  def test_order_directions_with_no_orders_defined
+    search = MyOtherModelSearch.new
+    assert_equal ({}), search.order_directions
+  end
+
+  def test_order_directions_frozen
+    assert MyModelSearch.new.order_directions.frozen?
+    assert MyOtherModelSearch.new.order_directions.frozen?
+  end
+
   def test_to_query_params_returns_values_before_type_cast
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)

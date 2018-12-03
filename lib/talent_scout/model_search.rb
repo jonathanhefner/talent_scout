@@ -101,6 +101,21 @@ module TalentScout
       end
     end
 
+    def order_directions
+      @order_directions ||= if self.class.attribute_types.key?("order")
+        order_s = self.order.to_s
+        self.class.attribute_types["order"].orders.transform_values do |ord|
+          if order_s == ord.asc_name
+            :asc
+          elsif order_s == ord.desc_name
+            :desc
+          end
+        end
+      else
+        {}
+      end.freeze
+    end
+
     def to_query_params
       attribute_set.values_before_type_cast.
         select{|key, value| attribute_set[key].changed? }
