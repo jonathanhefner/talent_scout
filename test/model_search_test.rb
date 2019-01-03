@@ -203,6 +203,13 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, actual
   end
 
+  def test_order_columns_can_be_overridden
+    original = MyModelSearch.attribute_types["order"].cast("col2")
+    refute_includes original, "new_col1 ASC"
+    actual = MyInheritingSearch.attribute_types["order"].cast("col2")
+    assert_includes actual, "new_col1 ASC"
+  end
+
   def test_order_directions
     choice_directions = CRITERIA_CHOICES[:order].keys.zip([:asc, :desc].cycle).to_h
     order_choices = ORDER_COLUMNS.keys.zip(CRITERIA_CHOICES[:order].keys.each_slice(2))
@@ -371,6 +378,7 @@ class ModelSearchTest < Minitest::Test
     criteria :new_str1
 
     order :new_col1
+    order :col2, [*ORDER_COLUMNS[:col2], "new_col1 ASC"]
   end
 
   def assert_attributes(criteria_values, search)
