@@ -11,7 +11,7 @@ class OrderTypeTest < Minitest::Test
   def test_orders_after_add_order
     orders = make_orders(COLUMNS)
     type = make_type(COLUMNS)
-    assert_equal orders.map(&:base_name), type.orders.keys
+    assert_equal orders.map(&:name), type.orders.keys
   end
 
   def test_orders_after_dup
@@ -25,7 +25,7 @@ class OrderTypeTest < Minitest::Test
     orders = make_orders(COLUMNS)
     type = make_type(COLUMNS)
     expected = orders.flat_map do |order|
-      [[order.asc_name, order.asc_value], [order.desc_name, order.desc_value]]
+      [[order.asc_choice, order.asc_value], [order.desc_choice, order.desc_value]]
     end
     assert_kind_of Hash, type.mapping
     assert_equal expected, type.mapping.to_a

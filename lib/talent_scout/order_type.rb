@@ -19,9 +19,9 @@ module TalentScout
 
     def add_order(name, columns, **options)
       order = Order.new(name, columns, options)
-      orders[order.base_name] = order
-      mapping[order.asc_name] = order.asc_value
-      mapping[order.desc_name] = order.desc_value
+      orders[order.name] = order
+      mapping[order.asc_choice] = order.asc_value
+      mapping[order.desc_choice] = order.desc_value
       order
     end
 

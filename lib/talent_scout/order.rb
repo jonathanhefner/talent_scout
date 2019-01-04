@@ -4,15 +4,15 @@ module TalentScout
     DEFAULT_ASC_SUFFIX = ""
     DEFAULT_DESC_SUFFIX = "_desc"
 
-    attr_reader :base_name, :asc_name, :desc_name, :asc_value, :desc_value
+    attr_reader :name, :asc_choice, :asc_value, :desc_choice, :desc_value
 
     def initialize(name, columns, asc_suffix: DEFAULT_ASC_SUFFIX, desc_suffix: DEFAULT_DESC_SUFFIX)
       columns = Array(columns || name)
-      @base_name = name.to_s
+      @name = name.to_s
       @asc_value = Arel.sql(columns.join(", "))
       @desc_value = Arel.sql(Order.desc(columns).join(", "))
-      @asc_name = "#{@base_name}#{asc_suffix}"
-      @desc_name = @desc_value == @asc_value ? @asc_name : "#{@base_name}#{desc_suffix}"
+      @asc_choice = "#{@name}#{asc_suffix}"
+      @desc_choice = @desc_value == @asc_value ? @asc_choice : "#{@name}#{desc_suffix}"
     end
 
     def self.desc(columns)

@@ -3,29 +3,29 @@ require "talent_scout"
 
 class OrderTest < Minitest::Test
 
-  def test_base_name
+  def test_name
     order = TalentScout::Order.new("foo", ALL_COLUMNS)
-    assert_equal "foo", order.base_name
+    assert_equal "foo", order.name
   end
 
-  def test_asc_name
+  def test_asc_choice
     order = TalentScout::Order.new("foo", ALL_COLUMNS, asc_suffix: "bar")
-    assert_equal "foobar", order.asc_name
+    assert_equal "foobar", order.asc_choice
   end
 
-  def test_desc_name
+  def test_desc_choice
     order = TalentScout::Order.new("foo", ALL_COLUMNS, desc_suffix: "bar")
-    assert_equal "foobar", order.desc_name
+    assert_equal "foobar", order.desc_choice
   end
 
-  def test_desc_name_with_only_static_columns
+  def test_desc_choice_with_only_static_columns
     order = TalentScout::Order.new("foo", STATIC_COLUMNS)
-    assert_equal order.asc_name, order.desc_name
+    assert_equal order.asc_choice, order.desc_choice
   end
 
   def test_default_suffixes
     order = TalentScout::Order.new("foo", ALL_COLUMNS)
-    refute_equal order.asc_name, order.desc_name
+    refute_equal order.asc_choice, order.desc_choice
   end
 
   def test_asc_value
