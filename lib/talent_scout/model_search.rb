@@ -57,7 +57,7 @@ module TalentScout
         attribute_types["order"]
       end
 
-      @order_type.add_order(name, columns, options)
+      @order_type.add_definition(name, columns, options)
     end
 
     def initialize(params = {})
@@ -104,10 +104,10 @@ module TalentScout
     def order_directions
       @order_directions ||= if self.class.attribute_types.key?("order")
         order_after_cast = attribute_set["order"].value
-        self.class.attribute_types["order"].orders.transform_values do |ord|
-          if order_after_cast == ord.asc_value
+        self.class.attribute_types["order"].definitions.transform_values do |definition|
+          if order_after_cast == definition.asc_value
             :asc
-          elsif order_after_cast == ord.desc_value
+          elsif order_after_cast == definition.desc_value
             :desc
           end
         end
