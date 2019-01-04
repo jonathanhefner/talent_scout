@@ -38,17 +38,23 @@ class OrderTypeTest < Minitest::Test
     refute_same type1.mapping, type2.mapping
   end
 
+  def test_cast_unsuffixed_order_choice
+    type = make_type(COLUMNS, asc_suffix: "_foo")
+    assert_equal type.cast("#{COLUMNS.first}_foo"), type.cast(COLUMNS.first.to_s)
+    assert_equal type.cast("#{COLUMNS.first}_foo"), type.cast(COLUMNS.first.to_sym)
+  end
+
   private
 
   COLUMNS = ["col1", "col2", "col3"]
 
-  def make_orders(columns)
-    columns.map{|column| TalentScout::Order.new(column, [column]) }
+  def make_orders(columns, **options)
+    columns.map{|column| TalentScout::Order.new(column, [column], options) }
   end
 
-  def make_type(columns)
+  def make_type(columns, **options)
     TalentScout::OrderType.new.tap do |type|
-      columns.each{|column| type.add_order(column, [column]) }
+      columns.each{|column| type.add_order(column, [column], options) }
     end
   end
 

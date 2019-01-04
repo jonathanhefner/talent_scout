@@ -224,6 +224,12 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_order_directions_with_unsuffixed_order_choice
+    search1 = MyModelSearch.new(order: "col1_asc")
+    search2 = MyModelSearch.new(order: :col1)
+    assert_equal search1.order_directions, search2.order_directions
+  end
+
   def test_order_directions_with_no_order_specified
     search = MyModelSearch.new
     expected = ORDER_COLUMNS.transform_values{ nil }.with_indifferent_access
@@ -258,7 +264,7 @@ class ModelSearchTest < Minitest::Test
     choice1_part1: { foo: "foo", bar: "bar" },
     choice1_part2: { foo: "foo", bar: "bar" },
     choice2: { "1" => 1, "2" => 2, "99" => 99, "100" => 100 },
-    order: %w"col1 col1_desc col2 col2_desc random random_is_random".index_by(&:to_sym),
+    order: %w"col1_asc col1_desc col2 col2_desc random random_is_random".index_by(&:to_sym),
   }
 
   ORDER_COLUMNS = {
@@ -365,7 +371,7 @@ class ModelSearchTest < Minitest::Test
       append(:skip_if_false, true)
     end
 
-    order :col1
+    order :col1, asc_suffix: "_asc", desc_suffix: "_desc"
     order :col2, ORDER_COLUMNS[:col2]
     order :random, ORDER_COLUMNS[:random], desc_suffix: "_is_random"
   end

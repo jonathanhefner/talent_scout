@@ -103,11 +103,11 @@ module TalentScout
 
     def order_directions
       @order_directions ||= if self.class.attribute_types.key?("order")
-        order_s = self.order.to_s
+        order_after_cast = attribute_set["order"].value
         self.class.attribute_types["order"].orders.transform_values do |ord|
-          if order_s == ord.asc_name
+          if order_after_cast == ord.asc_value
             :asc
-          elsif order_s == ord.desc_name
+          elsif order_after_cast == ord.desc_value
             :desc
           end
         end

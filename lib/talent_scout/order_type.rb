@@ -13,6 +13,10 @@ module TalentScout
       @orders = @orders.dup
     end
 
+    def cast(value)
+      super(value) || orders[value].try(&:asc_value)
+    end
+
     def add_order(name, columns, **options)
       order = Order.new(name, columns, options)
       orders[order.base_name] = order
