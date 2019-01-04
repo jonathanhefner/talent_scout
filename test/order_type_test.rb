@@ -10,12 +10,12 @@ class OrderTypeTest < Minitest::Test
 
   def test_definitions_after_add_definition
     definitions = make_definitions(COLUMNS)
-    type = make_type(COLUMNS)
+    type = make_type(definitions)
     assert_equal definitions.map(&:name), type.definitions.keys
   end
 
   def test_definitions_after_dup
-    type1 = make_type(COLUMNS)
+    type1 = make_type(make_definitions(COLUMNS))
     type2 = type1.dup
     assert_equal type1.definitions, type2.definitions
     refute_same type1.definitions, type2.definitions
@@ -23,7 +23,7 @@ class OrderTypeTest < Minitest::Test
 
   def test_mapping_after_add_definition
     definitions = make_definitions(COLUMNS)
-    type = make_type(COLUMNS)
+    type = make_type(definitions)
     expected = definitions.flat_map do |definition|
       [ [definition.asc_choice, definition.asc_value],
         [definition.desc_choice, definition.desc_value] ]
@@ -33,14 +33,14 @@ class OrderTypeTest < Minitest::Test
   end
 
   def test_mapping_after_dup
-    type1 = make_type(COLUMNS)
+    type1 = make_type(make_definitions(COLUMNS))
     type2 = type1.dup
     assert_equal type1.mapping, type2.mapping
     refute_same type1.mapping, type2.mapping
   end
 
   def test_cast_unsuffixed_order_choice
-    type = make_type(COLUMNS, asc_suffix: "_foo")
+    type = make_type(make_definitions(COLUMNS, asc_suffix: "_foo"))
     assert_equal type.cast("#{COLUMNS.first}_foo"), type.cast(COLUMNS.first.to_s)
     assert_equal type.cast("#{COLUMNS.first}_foo"), type.cast(COLUMNS.first.to_sym)
   end
@@ -53,9 +53,9 @@ class OrderTypeTest < Minitest::Test
     columns.map{|column| TalentScout::OrderDefinition.new(column, [column], options) }
   end
 
-  def make_type(columns, **options)
+  def make_type(definitions)
     TalentScout::OrderType.new.tap do |type|
-      columns.each{|column| type.add_definition(column, [column], options) }
+      definitions.each{|definition| type.add_definition(definition) }
     end
   end
 

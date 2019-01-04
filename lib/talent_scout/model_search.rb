@@ -57,7 +57,7 @@ module TalentScout
         attribute_types["order"]
       end
 
-      @order_type.add_definition(name, columns, options)
+      @order_type.add_definition(OrderDefinition.new(name, columns, options))
     end
 
     def initialize(params = {})

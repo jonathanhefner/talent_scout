@@ -17,12 +17,10 @@ module TalentScout
       super(value) || definitions[value].try(&:asc_value)
     end
 
-    def add_definition(name, columns, **options)
-      definition = OrderDefinition.new(name, columns, options)
+    def add_definition(definition)
       definitions[definition.name] = definition
       mapping[definition.asc_choice] = definition.asc_value
       mapping[definition.desc_choice] = definition.desc_value
-      definition
     end
 
   end
