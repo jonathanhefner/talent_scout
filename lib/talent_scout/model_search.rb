@@ -48,16 +48,15 @@ module TalentScout
     end
 
     def self.order(name, columns = nil, **options)
-      @order_type ||= begin
-        if attribute_types.key?("order") # if inheriting
-          attribute "order", attribute_types["order"].dup # override type
-        else
-          criteria "order", OrderType.new, &:order
+      unless attribute_types.fetch("order", nil).equal?(order_type)
+        if order_type.definitions.empty?
+          criteria "order", order_type, &:order
+        else # inheriting criteria
+          attribute "order", order_type # override type only
         end
-        attribute_types["order"]
       end
 
-      @order_type.add_definition(OrderDefinition.new(name, columns, options))
+      order_type.add_definition(OrderDefinition.new(name, columns, options))
     end
 
     def initialize(params = {})
@@ -102,18 +101,16 @@ module TalentScout
     end
 
     def order_directions
-      @order_directions ||= if self.class.attribute_types.key?("order")
-        order_after_cast = attribute_set["order"].value
-        self.class.attribute_types["order"].definitions.transform_values do |definition|
+      @order_directions ||= begin
+        order_after_cast = attribute_set.fetch("order", nil).try(&:value)
+        self.class.order_type.definitions.transform_values do |definition|
           if order_after_cast == definition.asc_value
             :asc
           elsif order_after_cast == definition.desc_value
             :desc
           end
-        end
-      else
-        {}
-      end.freeze
+        end.freeze
+      end
     end
 
     def to_query_params
@@ -125,6 +122,10 @@ module TalentScout
 
     def self.criteria_list
       @criteria_list ||= self == ModelSearch ? [] : self.superclass.criteria_list.dup
+    end
+
+    def self.order_type
+      @order_type ||= self == ModelSearch ? OrderType.new : self.superclass.order_type.dup
     end
 
     def attribute_set
