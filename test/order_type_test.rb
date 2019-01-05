@@ -39,6 +39,23 @@ class OrderTypeTest < Minitest::Test
     refute_same type1.mapping, type2.mapping
   end
 
+  def test_obverse_mapping_after_add_definition
+    definitions = make_definitions(COLUMNS)
+    type = make_type(definitions)
+    expected = definitions.flat_map do |definition|
+      [ [definition.asc_value, { definition.name => :asc }],
+        [definition.desc_value, { definition.name => :desc }] ]
+    end.to_h
+    assert_equal expected, type.obverse_mapping
+  end
+
+  def test_obverse_mapping_after_dup
+    type1 = make_type(make_definitions(COLUMNS))
+    type2 = type1.dup
+    assert_equal type1.obverse_mapping, type2.obverse_mapping
+    refute_same type1.obverse_mapping, type2.obverse_mapping
+  end
+
   def test_cast_unsuffixed_order_choice
     type = make_type(make_definitions(COLUMNS, asc_suffix: "_foo"))
     assert_equal type.cast("#{COLUMNS.first}_foo"), type.cast(COLUMNS.first.to_s)
