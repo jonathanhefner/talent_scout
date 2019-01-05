@@ -103,14 +103,9 @@ module TalentScout
     def order_directions
       @order_directions ||= begin
         order_after_cast = attribute_set.fetch("order", nil).try(&:value)
-        self.class.order_type.definitions.transform_values do |definition|
-          if order_after_cast == definition.asc_value
-            :asc
-          elsif order_after_cast == definition.desc_value
-            :desc
-          end
-        end.freeze
-      end
+        self.class.order_type.definitions.transform_values{ nil }.
+          merge!(self.class.order_type.obverse_mapping[order_after_cast] || {})
+      end.freeze
     end
 
     def to_query_params
