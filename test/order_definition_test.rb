@@ -61,6 +61,25 @@ class OrderDefinitionTest < Minitest::Test
     assert_equal expected.desc_value, actual.desc_value
   end
 
+  def test_choice_for_direction_with_asc
+    definition = make_definition()
+    [:asc, "asc", "ASC", true].each do |direction|
+      assert_equal definition.asc_choice, definition.choice_for_direction(direction)
+    end
+  end
+
+  def test_choice_for_direction_with_desc
+    definition = make_definition()
+    [:desc, "desc", "DESC"].each do |direction|
+      assert_equal definition.desc_choice, definition.choice_for_direction(direction)
+    end
+  end
+
+  def test_choice_for_direction_with_invalid
+    definition = make_definition()
+    assert_raises(ArgumentError){ definition.choice_for_direction(:bad) }
+  end
+
   private
 
   DYNAMIC_COLUMNS = ["col1", "col2", "col3"]

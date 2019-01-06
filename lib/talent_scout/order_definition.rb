@@ -15,6 +15,17 @@ module TalentScout
       @desc_choice = @desc_value == @asc_value ? @asc_choice : "#{@name}#{desc_suffix}"
     end
 
+    def choice_for_direction(direction)
+      case direction
+      when :asc, true, /\Aasc\Z/i
+        asc_choice
+      when :desc, /\Adesc\Z/i
+        desc_choice
+      else
+        raise ArgumentError.new("Invalid direction #{direction.inspect}")
+      end
+    end
+
     def self.desc(columns)
       columns.map do |column|
         column.match?(/ (?:ASC|DESC)$/i) ? column : "#{column} DESC"
