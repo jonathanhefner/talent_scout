@@ -86,6 +86,13 @@ module TalentScout
       self.class.new(attributes.except!(*criteria_names))
     end
 
+    def toggle_order(order_name, direction = nil)
+      definition = self.class.order_type.definitions[order_name]
+      raise ArgumentError.new("`#{order_name}` is not a valid order") unless definition
+      direction ||= order_directions[order_name] == :asc ? :desc : :asc
+      with(order: definition.choice_for_direction(direction))
+    end
+
     def each_choice(criteria_name)
       criteria_name = criteria_name.to_s
       type = self.class.attribute_types.fetch(criteria_name, nil)

@@ -169,6 +169,31 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_modify_via_toggle_order
+    order_choices = ORDER_COLUMNS.keys.zip(CRITERIA_CHOICES[:order].keys.each_slice(2))
+
+    order_choices.each do |order, choices|
+      toggles = choices.zip(choices.reverse).append([nil, choices.first])
+      toggles.each do |choice, toggled|
+        search = MyModelSearch.new(order: choice)
+        assert_equal toggled.to_s, search.toggle_order(order).order
+        assert_equal choices.first.to_s, search.toggle_order(order, :asc).order
+        assert_equal choices.last.to_s, search.toggle_order(order, :desc).order
+        assert_same choice, search.order # unmodified
+      end
+    end
+  end
+
+  def test_modify_via_toggle_order_raises_on_invalid_order_name
+    search = MyModelSearch.new
+    assert_raises(ArgumentError){ search.toggle_order("BAD") }
+  end
+
+  def test_modify_via_toggle_order_raises_on_invalid_direction
+    search = MyModelSearch.new
+    assert_raises(ArgumentError){ search.toggle_order(ORDER_COLUMNS.keys.first, :bad) }
+  end
+
   def test_each_choice
     chosen = CRITERIA_CHOICES.transform_values{|mapping| mapping.keys[1] }
     search = MyModelSearch.new(chosen)
