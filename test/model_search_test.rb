@@ -229,7 +229,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_order_choices_are_inherited
-    expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1", "new_col1_desc"]
+    expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1.asc", "new_col1.desc"]
     actual = MyInheritingSearch.new.each_choice(:order).to_a.map(&:first)
     assert_equal expected, actual
   end
@@ -311,7 +311,7 @@ class ModelSearchTest < Minitest::Test
     choice1_part1: { foo: "foo", bar: "bar" },
     choice1_part2: { foo: "foo", bar: "bar" },
     choice2: { "1" => 1, "2" => 2, "99" => 99, "100" => 100 },
-    order: %w"col1_asc col1_desc col2 col2_desc random random_is_random".index_by(&:to_sym),
+    order: %w"col1_asc col1_desc col2.asc col2.desc random random_is_random".index_by(&:to_sym),
   }
 
   ORDER_COLUMNS = {
@@ -342,7 +342,7 @@ class ModelSearchTest < Minitest::Test
     choice2: 99,
     skip_if_neg: 1,
     skip_if_false: true,
-    order: "col2",
+    order: "col2.asc",
   }
 
   CRITERIA_GROUPINGS = CRITERIA_VALUES.keys.group_by do |name|
@@ -421,7 +421,7 @@ class ModelSearchTest < Minitest::Test
 
     order :col1, asc_suffix: "_asc", desc_suffix: "_desc", default: true
     order :col2, ORDER_COLUMNS[:col2]
-    order :random, ORDER_COLUMNS[:random], desc_suffix: "_is_random"
+    order :random, ORDER_COLUMNS[:random], asc_suffix: "", desc_suffix: "_is_random"
   end
 
   class MyInheritingSearch < MyModelSearch

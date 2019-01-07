@@ -1,8 +1,8 @@
 module TalentScout
   class OrderDefinition
 
-    DEFAULT_ASC_SUFFIX = ""
-    DEFAULT_DESC_SUFFIX = "_desc"
+    DEFAULT_ASC_SUFFIX = ".asc"
+    DEFAULT_DESC_SUFFIX = ".desc"
 
     attr_reader :name, :asc_choice, :asc_value, :desc_choice, :desc_value
 
