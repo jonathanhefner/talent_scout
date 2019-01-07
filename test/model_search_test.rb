@@ -234,6 +234,22 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, actual
   end
 
+  def test_order_default_is_inherited
+    expected = MyModelSearch.new.order
+    actual = MyInheritingSearch.new.order
+    assert_equal expected, actual
+  end
+
+  def test_order_default_can_be_overridden
+    expected = MyReorderedInheritingSearch.new.toggle_order("new_col1", :desc).order
+    actual = MyReorderedInheritingSearch.new.order
+    assert_equal expected, actual
+  end
+
+  def test_order_default_not_specified
+    assert_nil MyOrderableModelSearch.new.order
+  end
+
   def test_order_columns_can_be_overridden
     original = MyModelSearch.attribute_types["order"].cast("col2")
     refute_includes original, "new_col1 ASC"
@@ -262,8 +278,8 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_order_directions_with_no_order_specified
-    search = MyModelSearch.new
-    expected = ORDER_COLUMNS.transform_values{ nil }.with_indifferent_access
+    search = MyOrderableModelSearch.new
+    expected = { col1: nil }.with_indifferent_access
     assert_equal expected, search.order_directions
   end
 
@@ -308,6 +324,7 @@ class ModelSearchTest < Minitest::Test
     str2: "abcdefault",
     date2_part1: Date.new(1970, 01, 01),
     date2_part2: Date.new(1970, 01, 01),
+    order: "col1_asc",
   }
 
   CRITERIA_VALUES = {
@@ -402,13 +419,9 @@ class ModelSearchTest < Minitest::Test
       append(:skip_if_false, true)
     end
 
-    order :col1, asc_suffix: "_asc", desc_suffix: "_desc"
+    order :col1, asc_suffix: "_asc", desc_suffix: "_desc", default: true
     order :col2, ORDER_COLUMNS[:col2]
     order :random, ORDER_COLUMNS[:random], desc_suffix: "_is_random"
-  end
-
-  class MyOtherModelSearch < TalentScout::ModelSearch
-    model MyModel
   end
 
   class MyInheritingSearch < MyModelSearch
@@ -416,6 +429,19 @@ class ModelSearchTest < Minitest::Test
 
     order :new_col1
     order :col2, [*ORDER_COLUMNS[:col2], "new_col1 ASC"]
+  end
+
+  class MyReorderedInheritingSearch < MyModelSearch
+    order :new_col1, default: :desc
+  end
+
+  class MyOtherModelSearch < TalentScout::ModelSearch
+    model MyModel
+  end
+
+  class MyOrderableModelSearch < TalentScout::ModelSearch
+    model MyModel
+    order :col1 # not default
   end
 
   def assert_attributes(criteria_values, search)

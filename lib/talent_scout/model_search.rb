@@ -47,13 +47,16 @@ module TalentScout
       end
     end
 
-    def self.order(name, columns = nil, **options)
-      unless attribute_types.fetch("order", nil).equal?(order_type)
+    def self.order(name, columns = nil, default: false, **options)
+      definition = OrderDefinition.new(name, columns, options)
+
+      if !attribute_types.fetch("order", nil).equal?(order_type) || default
+        criteria_options = default ? { default: definition.choice_for_direction(default) } : {}
         criteria_list.reject!{|crit| crit.names == ["order"] }
-        criteria "order", order_type, &:order
+        criteria "order", order_type, criteria_options, &:order
       end
 
-      order_type.add_definition(OrderDefinition.new(name, columns, options))
+      order_type.add_definition(definition)
     end
 
     def initialize(params = {})
