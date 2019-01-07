@@ -5,8 +5,8 @@ module TalentScout
 
     def initialize(mapping)
       @mapping = if mapping.is_a?(Hash)
-        unless mapping.all?{|k, v| k.is_a?(String) || k.is_a?(Symbol) }
-          raise ArgumentError.new("Only String and Symbol keys are supported")
+        unless mapping.all?{|key, value| key.is_a?(String) || key.is_a?(Symbol) }
+          raise ArgumentError, "Only String and Symbol keys are supported"
         end
         mapping.stringify_keys
       else

@@ -11,7 +11,7 @@ module TalentScout
         url_options = {}
       end
 
-      raise ArgumentError.new("`search` cannot be nil") if search.nil?
+      raise ArgumentError, "`search` cannot be nil" if search.nil?
 
       url_options[:controller] ||= controller_path
       url_options[:action] ||= action_name

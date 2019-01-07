@@ -22,7 +22,7 @@ module TalentScout
       when :desc, /\Adesc\Z/i
         desc_choice
       else
-        raise ArgumentError.new("Invalid direction #{direction.inspect}")
+        raise ArgumentError, "Invalid direction #{direction.inspect}"
       end
     end
 

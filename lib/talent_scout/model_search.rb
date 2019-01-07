@@ -18,7 +18,7 @@ module TalentScout
     def self.criteria(names, type = :string, choices: nil, **attribute_options, &block)
       if choices
         if type != :string
-          raise ArgumentError.new("Option :choices cannot be used with type #{type}")
+          raise ArgumentError, "Option :choices cannot be used with type #{type}"
         end
         type = ChoiceType.new(choices)
       elsif type == :void
@@ -31,7 +31,7 @@ module TalentScout
       end
 
       crit = Criteria.new(names, !type.is_a?(VoidType), &block)
-      self.criteria_list << crit
+      criteria_list << crit
 
       crit.names.each do |name|
         attribute name, type, attribute_options
@@ -61,8 +61,7 @@ module TalentScout
 
     def initialize(params = {})
       if params.is_a?(ActionController::Parameters)
-        params = params.permit(self.class.criteria_list.flat_map(&:names)).
-          reject!{|k, v| v.blank? }
+        params = params.permit(self.class.attribute_types.keys).reject!{|key, value| value.blank? }
       end
       super(params)
     end
@@ -74,21 +73,20 @@ module TalentScout
     end
 
     def with(criteria_values)
-      self.class.new(self.attributes.merge!(criteria_values.stringify_keys))
+      self.class.new(attributes.merge!(criteria_values.stringify_keys))
     end
 
     def without(*criteria_names)
-      attributes = self.attributes
       criteria_names.map!(&:to_s)
       criteria_names.each do |name|
-        raise ActiveModel::UnknownAttributeError.new(self, name) if !attributes.key?(name)
+        raise ActiveModel::UnknownAttributeError.new(self, name) if !attribute_set.key?(name)
       end
       self.class.new(attributes.except!(*criteria_names))
     end
 
     def toggle_order(order_name, direction = nil)
       definition = self.class.order_type.definitions[order_name]
-      raise ArgumentError.new("`#{order_name}` is not a valid order") unless definition
+      raise ArgumentError, "`#{order_name}` is not a valid order" unless definition
       direction ||= order_directions[order_name] == :asc ? :desc : :asc
       with(order: definition.choice_for_direction(direction))
     end
@@ -97,7 +95,7 @@ module TalentScout
       criteria_name = criteria_name.to_s
       type = self.class.attribute_types.fetch(criteria_name, nil)
       unless type.is_a?(ChoiceType)
-        raise ArgumentError.new("`#{criteria_name}` is not a criteria with choices")
+        raise ArgumentError, "`#{criteria_name}` is not a criteria with choices"
       end
       return to_enum(:each_choice, criteria_name) unless block_given?
 

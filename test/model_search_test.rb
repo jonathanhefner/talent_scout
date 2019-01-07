@@ -64,9 +64,8 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_attribute_default_values
-    assert_attributes CRITERIA_DEFAULT_VALUES, MyModelSearch.new do |search|
-      search.attributes.compact
-    end
+    expected = CRITERIA_VALUES.transform_values{ nil }.merge(CRITERIA_DEFAULT_VALUES)
+    assert_attributes expected, MyModelSearch.new
   end
 
   def test_guess_model_class
@@ -445,12 +444,11 @@ class ModelSearchTest < Minitest::Test
   end
 
   def assert_attributes(criteria_values, search)
-    attributes = block_given? ? yield(search) : search.attributes
     expected = criteria_values.map do |key, value|
       type = search.class.attribute_types[key.to_s]
       [key.to_s, type.cast(value)]
     end.to_h
-    assert_equal expected, attributes
+    assert_equal expected, search.attributes
   end
 
   def assert_results(criteria_values, search)

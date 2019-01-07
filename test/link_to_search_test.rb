@@ -97,7 +97,7 @@ class LinkToSearchTest < ActionView::TestCase
     options = {
       controller: controller,
       action: action,
-      TalentScout::PARAM_KEY => search.to_query_params,
+      MyModelSearch.model_name.param_key => search.to_query_params,
     }
     expected = link_to(LINK_TEXT, options, HTML_OPTIONS)
     assert_equal expected, actual
