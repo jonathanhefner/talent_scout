@@ -49,11 +49,8 @@ module TalentScout
 
     def self.order(name, columns = nil, **options)
       unless attribute_types.fetch("order", nil).equal?(order_type)
-        if order_type.definitions.empty?
-          criteria "order", order_type, &:order
-        else # inheriting criteria
-          attribute "order", order_type # override type only
-        end
+        criteria_list.reject!{|crit| crit.names == ["order"] }
+        criteria "order", order_type, &:order
       end
 
       order_type.add_definition(OrderDefinition.new(name, columns, options))

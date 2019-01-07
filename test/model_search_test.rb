@@ -222,6 +222,12 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
+  def test_order_accessor_inherits_before_type_cast_behavior
+    expected = "col1_desc"
+    actual = MyInheritingSearch.new(order: expected).order
+    assert_equal expected, actual
+  end
+
   def test_order_choices_are_inherited
     expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1", "new_col1_desc"]
     actual = MyInheritingSearch.new.each_choice(:order).to_a.map(&:first)
