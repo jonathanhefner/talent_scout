@@ -1,0 +1,6 @@
+<% 40.times do |i| %>
+post<%= i %>:
+  title: Title <%= i %>
+  category: <%= i % 4 %>
+  published: <%= (i / 4 % 2) == 0 %>
+<% end %>
