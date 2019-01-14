@@ -34,6 +34,13 @@ class FormBuilderTest < ActionView::TestCase
     assert_includes field, selected
   end
 
+  def test_label_i18n
+    expected = "EXPECTED LABEL TEXT"
+    I18n.backend.store_translations(:en,
+      { activemodel: { attributes: { MyModelSearch.model_name.i18n_key => { date1: expected } } } })
+    assert_includes make_field_label(:date1), expected
+  end
+
   def test_submit_button_default_text
     assert_html_attribute "value", "Search", make_submit_button()
   end
@@ -69,6 +76,10 @@ class FormBuilderTest < ActionView::TestCase
 
   def make_select_field(name, choices)
     make_form_builder.select(name, choices)
+  end
+
+  def make_field_label(name)
+    make_form_builder.label(name)
   end
 
   def make_submit_button(value = nil)

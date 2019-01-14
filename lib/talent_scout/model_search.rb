@@ -4,6 +4,7 @@ module TalentScout
     include ActiveModel::Attributes
     include ActiveRecord::AttributeAssignment
     include ActiveRecord::AttributeMethods::BeforeTypeCast
+    extend ActiveModel::Translation
 
     def self.model(model = nil)
       @model = model if model
