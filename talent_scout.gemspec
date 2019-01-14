@@ -18,4 +18,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "capybara", ">= 2.15", "< 4.0"
   s.add_development_dependency "yard", "~> 0.9"
+  s.add_development_dependency "simple_form", "~> 4.0"
 end

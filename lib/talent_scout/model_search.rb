@@ -120,6 +120,18 @@ module TalentScout
         select{|key, value| attribute_set[key].changed? }
     end
 
+    # HACK Implemented by ActiveRecord but not ActiveModel.  Expected by
+    # some third-party form builders, e.g. Simple Form.
+    def has_attribute?(name)
+      self.class.attribute_types.key?(name.to_s)
+    end
+
+    # HACK Implemented by ActiveRecord but not ActiveModel.  Expected by
+    # some third-party form builders, e.g. Simple Form.
+    def type_for_attribute(name)
+      self.class.attribute_types[name.to_s]
+    end
+
     private
 
     def self.criteria_list
