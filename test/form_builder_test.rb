@@ -22,7 +22,7 @@ class FormBuilderTest < ActionView::TestCase
 
   def test_select_accepts_each_choice_raw_enum
     each_choice = SEARCH.each_choice(:choice1)
-    choices = each_choice.to_a.map(&:first)
+    choices = each_choice.to_a
     assert_equal options_for_select(choices), options_for_select(each_choice)
     assert_equal make_select_field(:choice1, choices), make_select_field(:choice1, each_choice)
   end

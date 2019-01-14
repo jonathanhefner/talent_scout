@@ -200,18 +200,27 @@ class ModelSearchTest < Minitest::Test
     CRITERIA_CHOICES.each do |name, mapping|
       expected = mapping.keys.map{|choice| [choice.to_s, choice == chosen[name]] }
 
-      assert_equal expected, search.each_choice(name.to_sym).to_a
-      assert_equal expected, search.each_choice(name.to_s).to_a
+      assert_equal expected, search.each_choice(name.to_sym).map{|k, v| [k, v] }
+      assert_equal expected, search.each_choice(name.to_s).map{|k, v| [k, v] }
     end
+  end
+
+  def test_each_choice_sensitive_to_block_arity
+    criteria = CRITERIA_CHOICES.keys.first
+    search = MyModelSearch.new
+    expected = search.each_choice(criteria).map{|k, v| k }
+    actual = search.each_choice(criteria).to_a
+    assert_equal expected, actual
   end
 
   def test_each_choice_block_and_enum_are_equivalent
     criteria = CRITERIA_CHOICES.keys.first
     search = MyModelSearch.new
-    expected = []
-    search.each_choice(criteria){|*x| expected << x }
+    block_values = []
+    search.each_choice(criteria){|k, v| block_values << [k, v] }
     assert_instance_of Enumerator, search.each_choice(criteria)
-    assert_equal expected, search.each_choice(criteria).to_a
+    enum_values = search.each_choice(criteria).map{|k, v| [k, v] }
+    assert_equal block_values, enum_values
   end
 
   def test_each_choice_raises_on_invalid_criteria_name
@@ -229,7 +238,7 @@ class ModelSearchTest < Minitest::Test
 
   def test_order_choices_are_inherited
     expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1.asc", "new_col1.desc"]
-    actual = MyInheritingSearch.new.each_choice(:order).to_a.map(&:first)
+    actual = MyInheritingSearch.new.each_choice(:order).to_a
     assert_equal expected, actual
   end
 

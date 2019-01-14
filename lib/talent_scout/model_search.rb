@@ -92,17 +92,18 @@ module TalentScout
       with(order: definition.choice_for_direction(direction))
     end
 
-    def each_choice(criteria_name)
+    def each_choice(criteria_name, &block)
       criteria_name = criteria_name.to_s
       type = self.class.attribute_types.fetch(criteria_name, nil)
       unless type.is_a?(ChoiceType)
         raise ArgumentError, "`#{criteria_name}` is not a criteria with choices"
       end
-      return to_enum(:each_choice, criteria_name) unless block_given?
+      return to_enum(:each_choice, criteria_name) unless block
 
+      value_after_cast = attribute_set[criteria_name].value
       type.mapping.each do |choice, value|
-        chosen = value == attribute_set[criteria_name].value
-        yield choice, chosen
+        chosen = value_after_cast.equal?(value)
+        block.arity >= 2 ? block.call(choice, chosen) : block.call(choice)
       end
     end
 
