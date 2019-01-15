@@ -80,6 +80,21 @@ class ModelSearchTest < Minitest::Test
     assert_equal MyModel, MyInheritingSearch.model
   end
 
+  def test_default_scope
+    search = MyOtherModelSearch.new
+    assert_composition %i[scope1 scope2], search
+  end
+
+  def test_default_scope_is_inherited
+    search = MyOtherInheritingSearch.new
+    assert_composition %i[scope1 scope2 scope3], search
+  end
+
+  def test_default_scope_precedes_criteria
+    search = MyOtherInheritingSearch.new(col1: "abc")
+    assert_composition %i[scope1 scope2 scope3 col1], search
+  end
+
   def test_results_with_full_criteria_values
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_results CRITERIA_VALUES, search
@@ -445,6 +460,13 @@ class ModelSearchTest < Minitest::Test
 
   class MyOtherModelSearch < TalentScout::ModelSearch
     model MyModel
+    default_scope { append(:scope1, true) }
+    default_scope { append(:scope2, true) }
+    criteria :col1
+  end
+
+  class MyOtherInheritingSearch < MyOtherModelSearch
+    default_scope { append(:scope3, true) }
   end
 
   class MyOrderableModelSearch < TalentScout::ModelSearch
@@ -468,6 +490,10 @@ class ModelSearchTest < Minitest::Test
     end.sort_by(&:first)
     actual = results.to_a.sort_by(&:first)
     assert_equal expected, actual
+  end
+
+  def assert_composition(names, search)
+    assert_equal names, search.results.to_a.map(&:first)
   end
 
 end

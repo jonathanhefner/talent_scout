@@ -16,6 +16,11 @@ module TalentScout
       @model_name ||= ModelName.new(self)
     end
 
+    def self.default_scope(&block)
+      i = criteria_list.index{|crit| !crit.names.empty? } || -1
+      criteria_list.insert(i, Criteria.new([], true, &block))
+    end
+
     def self.criteria(names, type = :string, choices: nil, **attribute_options, &block)
       if choices
         if type != :string
