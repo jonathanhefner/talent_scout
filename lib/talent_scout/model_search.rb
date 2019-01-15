@@ -72,8 +72,8 @@ module TalentScout
       super(params)
     end
 
-    def results(base_scope = self.class.model.all)
-      self.class.criteria_list.reduce(base_scope) do |scope, crit|
+    def results
+      self.class.criteria_list.reduce(self.class.model) do |scope, crit|
         crit.apply(scope, attribute_set)
       end
     end

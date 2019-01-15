@@ -136,15 +136,6 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_with_base_scope
-    base_params = { base_str1: "hello", base_str2: "world" }
-    base_scope = MyModel.all.where(base_params)
-    criteria_values = base_params.merge(CRITERIA_VALUES)
-    assert_results criteria_values, MyModelSearch.new(CRITERIA_VALUES) do |search|
-      search.results(base_scope)
-    end
-  end
-
   def test_results_skips_conditional_criteria_block
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
     assert_results CRITERIA_VALUES.except(:skip_if_neg), search
@@ -375,8 +366,8 @@ class ModelSearchTest < Minitest::Test
   end.to_h
 
   class MyModel
-    def self.all
-      MockRelation.new
+    def self.method_missing(name, *args)
+      MockRelation.new.send(name, *args)
     end
 
     class MockRelation
@@ -483,12 +474,11 @@ class ModelSearchTest < Minitest::Test
   end
 
   def assert_results(criteria_values, search)
-    results = block_given? ? yield(search) : search.results
     expected = criteria_values.map do |key, value|
       type = search.class.attribute_types[key.to_s]
       [key, type.cast(value), :OK]
     end.sort_by(&:first)
-    actual = results.to_a.sort_by(&:first)
+    actual = search.results.to_a.sort_by(&:first)
     assert_equal expected, actual
   end
 
