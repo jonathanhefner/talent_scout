@@ -3,9 +3,16 @@ require "talent_scout"
 
 class ControllerTest < Minitest::Test
 
-  def test_model_search_class
+  def test_model_search_class_getter
     assert_includes MyModelSearch.name, "::" # sanity check is namespaced class
     assert_equal MyModelSearch, MyModelsController.model_search_class
+  end
+
+  def test_model_search_class_setter
+    MyModelsController.model_search_class = MyOtherModelSearch
+    assert_equal MyOtherModelSearch, MyModelsController.model_search_class
+  ensure
+    MyModelsController.model_search_class = MyModelSearch # restore
   end
 
   def test_model_search_without_params
