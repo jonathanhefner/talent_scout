@@ -12,9 +12,9 @@ module TalentScout
       end
     end
 
-    def model_search(model_search_class = self.class.model_search_class)
-      param_key = model_search_class.model_name.param_key
-      model_search_class.new(params[param_key])
+    def model_search()
+      param_key = self.class.model_search_class.model_name.param_key
+      self.class.model_search_class.new(params[param_key])
     end
   end
 end
