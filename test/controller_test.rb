@@ -8,30 +8,22 @@ class ControllerTest < Minitest::Test
     assert_equal MyModelSearch, MyModelsController.model_search_class
   end
 
+  def test_model_search_with_params
+    search = make_controller(MyModelsController, CRITERIA_VALUES).model_search
+    assert_instance_of MyModelSearch, search
+    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
+  end
+
   def test_model_search_without_params
-    controller = make_controller
-    search = controller.model_search
+    search = make_controller(MyModelsController, nil).model_search
     assert_instance_of MyModelSearch, search
     assert_equal MyModelSearch.new.attributes, search.attributes
   end
 
-  def test_model_search_with_params
-    criteria_values = { str1: "expected" }
-    controller = make_controller(MyModelSearch.model_name.param_key => criteria_values)
-    search = controller.model_search
-    assert_instance_of MyModelSearch, search
-    assert_equal criteria_values, search.attributes.symbolize_keys
-  end
-
   def test_model_search_with_custom_search_class
-    criteria_values = { str2: "expected" }
-    controller = make_controller(MyOtherModelSearch.model_name.param_key => criteria_values)
-    controller.class.model_search_class = MyOtherModelSearch
-    search = controller.model_search
-    assert_instance_of MyOtherModelSearch, search
-    assert_equal criteria_values, search.attributes.symbolize_keys
-  ensure
-    controller.class.model_search_class = MyModelSearch # restore
+    search = make_controller(MyOtherController, CRITERIA_VALUES).model_search
+    assert_instance_of MyModelSearch, search
+    assert_equal CRITERIA_VALUES, search.attributes.symbolize_keys
   end
 
   private
@@ -43,16 +35,20 @@ class ControllerTest < Minitest::Test
     criteria :str1
   end
 
-  class MyOtherModelSearch < TalentScout::ModelSearch
-    criteria :str2
-  end
-
   class MyModelsController < ActionController::Base
   end
 
-  def make_controller(params = {})
-    MyModelsController.new.tap do |controller|
-      controller.params = ActionController::Parameters.new(params)
+  class MyOtherController < ActionController::Base
+    self.model_search_class = MyModelSearch
+  end
+
+  CRITERIA_VALUES = { str1: "foo" }
+
+  def make_controller(controller_class, criteria_values)
+    controller_class.new.tap do |controller|
+      controller.params = ActionController::Parameters.new({
+        MyModelSearch.model_name.param_key => criteria_values.presence
+      }.compact)
     end
   end
 
