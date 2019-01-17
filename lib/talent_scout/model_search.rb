@@ -6,13 +6,13 @@ module TalentScout
     include ActiveRecord::AttributeMethods::BeforeTypeCast
     extend ActiveModel::Translation
 
-    def self.model
-      @model ||= self.superclass == ModelSearch ?
-        self.name.chomp("Search").constantize : self.superclass.model
+    def self.model_class
+      @model_class ||= self.superclass == ModelSearch ?
+        self.name.chomp("Search").constantize : self.superclass.model_class
     end
 
-    def self.model=(model)
-      @model = model
+    def self.model_class=(model_class)
+      @model_class = model_class
     end
 
     def self.model_name
@@ -76,7 +76,7 @@ module TalentScout
     end
 
     def results
-      self.class.criteria_list.reduce(self.class.model) do |scope, crit|
+      self.class.criteria_list.reduce(self.class.model_class) do |scope, crit|
         crit.apply(scope, attribute_set)
       end
     end

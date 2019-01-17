@@ -69,15 +69,15 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_guess_model_class
-    assert_equal MyModel, MyModelSearch.model
+    assert_equal MyModel, MyModelSearch.model_class
   end
 
   def test_override_model_class
-    assert_equal MyModel, MyOtherModelSearch.model
+    assert_equal MyModel, MyOtherModelSearch.model_class
   end
 
   def test_inherits_model_class
-    assert_equal MyModel, MyInheritingSearch.model
+    assert_equal MyModel, MyInheritingSearch.model_class
   end
 
   def test_default_scope
@@ -450,7 +450,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   class MyOtherModelSearch < TalentScout::ModelSearch
-    self.model = MyModel
+    self.model_class = MyModel
     default_scope { append(:scope1, true) }
     default_scope { append(:scope2, true) }
     criteria :col1
@@ -461,7 +461,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   class MyOrderableModelSearch < TalentScout::ModelSearch
-    self.model = MyModel
+    self.model_class = MyModel
     order :col1 # not default
   end
 

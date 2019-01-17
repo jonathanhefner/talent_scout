@@ -6,11 +6,11 @@ module TalentScout
     end
 
     def route_key
-      @klass.model.model_name.route_key
+      @klass.model_class.model_name.route_key
     end
 
     def singular_route_key
-      @klass.model.model_name.singular_route_key
+      @klass.model_class.model_name.singular_route_key
     end
 
   end
