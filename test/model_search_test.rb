@@ -450,7 +450,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   class MyOtherModelSearch < TalentScout::ModelSearch
-    model MyModel
+    self.model = MyModel
     default_scope { append(:scope1, true) }
     default_scope { append(:scope2, true) }
     criteria :col1
@@ -461,7 +461,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   class MyOrderableModelSearch < TalentScout::ModelSearch
-    model MyModel
+    self.model = MyModel
     order :col1 # not default
   end
 
