@@ -8,6 +8,18 @@ class ControllerTest < Minitest::Test
     assert_equal MyModelSearch, MyModelsController.model_search_class
   end
 
+  def test_model_search_class_without_search_class
+    assert_raises{ NoSearchController.model_search_class }
+  end
+
+  def test_model_search_class_predicate
+    assert_equal MyModelSearch, MyModelsController.model_search_class?
+  end
+
+  def test_model_search_class_predicate_without_search_class
+    refute NoSearchController.model_search_class? # does not raise
+  end
+
   def test_model_search_with_params
     search = make_controller(MyModelsController, CRITERIA_VALUES).model_search
     assert_instance_of MyModelSearch, search
@@ -40,6 +52,9 @@ class ControllerTest < Minitest::Test
 
   class MyOtherController < ActionController::Base
     self.model_search_class = MyModelSearch
+  end
+
+  class NoSearchController < ActionController::Base
   end
 
   CRITERIA_VALUES = { str1: "foo" }

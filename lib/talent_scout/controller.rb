@@ -10,6 +10,15 @@ module TalentScout
       def model_search_class=(klass)
         @model_search_class = klass
       end
+
+      def model_search_class?
+        return @model_search_class if defined?(@model_search_class)
+        begin
+          model_search_class
+        rescue NameError
+          @model_search_class = nil
+        end
+      end
     end
 
     def model_search()
