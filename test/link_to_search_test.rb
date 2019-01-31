@@ -43,6 +43,12 @@ class LinkToSearchTest < ActionView::TestCase
     assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), options
   end
 
+  def test_supports_extra_query_params
+    actual = link_to_search(LINK_TEXT, { search: SEARCH, per_page: 100 }, HTML_OPTIONS)
+    actual_href = Nokogiri::HTML(actual).at_css("a")["href"]
+    assert_includes URI(actual_href).query.split("&"), "per_page=100"
+  end
+
   def test_html_options_are_optional
     assert link_to_search(LINK_TEXT, SEARCH)
     assert link_to_search(SEARCH){ LINK_TEXT }
