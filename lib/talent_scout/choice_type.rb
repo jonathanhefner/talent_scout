@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class ChoiceType < ActiveModel::Type::Value
 
     attr_reader :mapping

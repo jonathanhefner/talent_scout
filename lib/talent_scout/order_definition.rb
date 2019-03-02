@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class OrderDefinition
 
     DEFAULT_ASC_SUFFIX = ".asc"

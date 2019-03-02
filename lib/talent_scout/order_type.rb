@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class OrderType < ChoiceType
 
     attr_reader :definitions, :obverse_mapping

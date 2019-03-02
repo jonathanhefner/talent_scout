@@ -1,3 +1,4 @@
+# @!visibility private
 module TestUnit
   module Generators
     class SearchGenerator < ::Rails::Generators::NamedBase

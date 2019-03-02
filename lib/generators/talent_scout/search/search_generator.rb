@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   module Generators
     class SearchGenerator < ::Rails::Generators::NamedBase
       source_root File.join(__dir__, "templates")

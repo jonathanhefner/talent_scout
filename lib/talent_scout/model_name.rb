@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class ModelName < ActiveModel::Name
 
     def param_key

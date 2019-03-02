@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class VoidType < ActiveModel::Type::Value
 
     attr_reader :underlying_type

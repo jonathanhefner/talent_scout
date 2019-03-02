@@ -1,4 +1,5 @@
 module TalentScout
+  # @!visibility private
   class Criteria
 
     attr_reader :names, :allow_nil, :block

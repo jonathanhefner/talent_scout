@@ -12,5 +12,6 @@ require "talent_scout/railtie"
 
 
 module TalentScout
+  # Name of query param used to wrap search form data.
   PARAM_KEY = "q"
 end
