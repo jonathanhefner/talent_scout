@@ -707,7 +707,6 @@ end
 
 Remember that only one order can be applied at a time, so only one value
 in the Hash, at most, will be non-`nil`.
->>>>>>> b0d201c... Update README
 
 
 ## Installation
