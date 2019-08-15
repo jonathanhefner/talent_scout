@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "talent_scout"
   s.version     = TalentScout::VERSION
   s.authors     = ["Jonathan Hefner"]
-  s.email       = ["jonathan.hefner@gmail.com"]
+  s.email       = ["jonathan@hefner.pro"]
   s.homepage    = "https://github.com/jonathanhefner/talent_scout"
   s.summary     = %q{Model-backed searches in Rails}
   s.license     = "MIT"
