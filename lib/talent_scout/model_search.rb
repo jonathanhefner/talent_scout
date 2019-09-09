@@ -355,6 +355,9 @@ module TalentScout
     #
     # @param params [Hash<String, Object>, Hash<Symbol, Object>, ActionController::Parameters]
     def initialize(params = {})
+      # HACK initialize ActiveRecord state required by ActiveRecord::AttributeMethods::BeforeTypeCast
+      @transaction_state ||= nil
+
       if params.is_a?(ActionController::Parameters)
         params = params.permit(self.class.attribute_types.keys).reject!{|key, value| value.blank? }
       end
