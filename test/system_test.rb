@@ -44,7 +44,6 @@ end
 class SystemTest < ActionDispatch::SystemTestCase
 
   driven_by :rack_test
-  fixtures :posts
 
   def test_various_searches
     combinations = [nil, "1", "2"].product([nil, :technology, :math], [nil, true, false])
