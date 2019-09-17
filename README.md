@@ -1,4 +1,4 @@
-# talent_scout
+# talent_scout [![Build Status](https://travis-ci.org/jonathanhefner/talent_scout.svg?branch=master)](https://travis-ci.org/jonathanhefner/talent_scout)
 
 Model-backed searches in Rails.  A whiz-bang example:
 
