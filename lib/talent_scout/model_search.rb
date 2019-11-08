@@ -386,7 +386,7 @@ module TalentScout
     #
     # @return [ActiveRecord::Relation]
     def results
-      self.class.criteria_list.reduce(self.class.model_class) do |scope, crit|
+      self.class.criteria_list.reduce(self.class.model_class.all) do |scope, crit|
         crit.apply(scope, attribute_set)
       end
     end

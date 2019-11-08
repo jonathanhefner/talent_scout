@@ -106,6 +106,11 @@ class ModelSearchTest < Minitest::Test
     assert_results criteria_values, search
   end
 
+  def test_results_with_no_criteria_values
+    search = MyNoDefaultsModelSearch.new
+    assert_results [], search
+  end
+
   def test_results_with_some_criteria_values_excluded
     CRITERIA_VALUES.keys.each do |name|
       search = MyModelSearch.new(CRITERIA_VALUES.except(name))
@@ -261,7 +266,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_order_default_when_no_default_specified
-    assert_nil MyOrderableModelSearch.new.order
+    assert_nil MyNoDefaultsModelSearch.new.order
   end
 
   def test_order_columns_can_be_overridden
@@ -292,7 +297,7 @@ class ModelSearchTest < Minitest::Test
   end
 
   def test_order_directions_with_no_order_specified
-    search = MyOrderableModelSearch.new
+    search = MyNoDefaultsModelSearch.new
     expected = { col1: nil }.with_indifferent_access
     assert_equal expected, search.order_directions
   end
@@ -381,6 +386,10 @@ class ModelSearchTest < Minitest::Test
         self.class.new(@to_a + [[name.to_sym, value, :OK]])
       end
 
+      def all
+        self
+      end
+
       def where(args)
         raise "empty #where args" if args.empty?
         args.reduce(self) do |rel, (name, value)|
@@ -460,9 +469,9 @@ class ModelSearchTest < Minitest::Test
     default_scope { append(:scope3, true) }
   end
 
-  class MyOrderableModelSearch < TalentScout::ModelSearch
+  class MyNoDefaultsModelSearch < TalentScout::ModelSearch
     self.model_class = MyModel
-    order :col1 # not default
+    order :col1
   end
 
   def assert_attributes(criteria_values, search)
@@ -477,9 +486,11 @@ class ModelSearchTest < Minitest::Test
     expected = criteria_values.map do |key, value|
       type = search.class.attribute_types[key.to_s]
       [key, type.cast(value), :OK]
-    end.sort_by(&:first)
-    actual = search.results.to_a.sort_by(&:first)
-    assert_equal expected, actual
+    end
+    results = search.results
+
+    assert_instance_of MyModel::MockRelation, results
+    assert_equal expected.sort_by(&:first), results.to_a.sort_by(&:first)
   end
 
   def assert_composition(names, search)
