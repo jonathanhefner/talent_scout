@@ -4,7 +4,7 @@ module TalentScout
 
     module ClassMethods
       # Returns the controller model search class.  Defaults to a class
-      # corresponding to the singular-form of the controller name.  The
+      # corresponding to the singular form of the controller name.  The
       # model search class can also be set with {model_search_class=}.
       # If the model search class has not been set, and the default
       # class does not exist, a +NameError+ will be raised.
@@ -32,8 +32,8 @@ module TalentScout
       end
 
       # Similar to {model_search_class}, but returns nil instead of
-      # raising an error when the value has not been set (via
-      # {model_search_class=}) and the default class does not exist.
+      # raising an error when the value has not been set and the default
+      # class does not exist.
       #
       # @return [Class<TalentScout::ModelSearch>, nil]
       def model_search_class?
