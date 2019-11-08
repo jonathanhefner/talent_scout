@@ -6,7 +6,7 @@ class SearchGeneratorTest < Rails::Generators::TestCase
   destination File.join(__dir__, "tmp")
   setup :prepare_destination
 
-  def test_necessary_files_are_created
+  def test_creates_necessary_files
     ["person", "namespaced/person"].each do |resource|
       run_generator([resource, "--test-framework=test_unit"])
       assert_file "app/searches/#{resource}_search.rb", /#{resource.classify}Search/

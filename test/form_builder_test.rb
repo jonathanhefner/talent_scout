@@ -9,7 +9,7 @@ class FormBuilderTest < ActionView::TestCase
     assert_html_attribute "action", expected, build_form(MyModelSearch.new)
   end
 
-  def test_form_uses_specified_params_wrapper
+  def test_form_uses_scoped_param_keys
     field = make_text_field(:date1)
     assert_html_attribute "name", "#{TalentScout::PARAM_KEY}[date1]", field
   end

@@ -8,20 +8,20 @@ class OrderTypeTest < Minitest::Test
     assert_kind_of TalentScout::ChoiceType, type
   end
 
-  def test_definitions_after_add_definition
+  def test_definitions
     definitions = make_definitions(COLUMNS)
     type = make_type(definitions)
     assert_equal definitions.map(&:name), type.definitions.keys
   end
 
-  def test_definitions_after_dup
+  def test_dup_copies_definitions
     type1 = make_type(make_definitions(COLUMNS))
     type2 = type1.dup
     assert_equal type1.definitions, type2.definitions
     refute_same type1.definitions, type2.definitions
   end
 
-  def test_mapping_after_add_definition
+  def test_mapping
     definitions = make_definitions(COLUMNS)
     type = make_type(definitions)
     expected = definitions.flat_map do |definition|
@@ -32,14 +32,14 @@ class OrderTypeTest < Minitest::Test
     assert_equal expected, type.mapping.to_a
   end
 
-  def test_mapping_after_dup
+  def test_dup_copies_mapping
     type1 = make_type(make_definitions(COLUMNS))
     type2 = type1.dup
     assert_equal type1.mapping, type2.mapping
     refute_same type1.mapping, type2.mapping
   end
 
-  def test_obverse_mapping_after_add_definition
+  def test_obverse_mapping
     definitions = make_definitions(COLUMNS)
     type = make_type(definitions)
     expected = definitions.flat_map do |definition|
@@ -49,7 +49,7 @@ class OrderTypeTest < Minitest::Test
     assert_equal expected, type.obverse_mapping
   end
 
-  def test_obverse_mapping_after_dup
+  def test_dup_copies_obverse_mapping
     type1 = make_type(make_definitions(COLUMNS))
     type2 = type1.dup
     assert_equal type1.obverse_mapping, type2.obverse_mapping

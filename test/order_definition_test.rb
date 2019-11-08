@@ -40,21 +40,21 @@ class OrderDefinitionTest < Minitest::Test
     assert_equal Arel.sql(expected), definition.desc_value
   end
 
-  def test_symbol_columns
+  def test_columns_as_symbols
     expected = make_definition(ALL_COLUMNS.map(&:to_s))
     actual = make_definition(ALL_COLUMNS.map(&:to_sym))
     assert_equal expected.asc_value, actual.asc_value
     assert_equal expected.desc_value, actual.desc_value
   end
 
-  def test_singular_column
+  def test_columns_as_non_array
     expected = make_definition(ALL_COLUMNS.take(1))
     actual = make_definition(ALL_COLUMNS.first)
     assert_equal expected.asc_value, actual.asc_value
     assert_equal expected.desc_value, actual.desc_value
   end
 
-  def test_nil_columns
+  def test_columns_as_nil
     expected = make_definition([make_definition.name])
     actual = make_definition(nil)
     assert_equal expected.asc_value, actual.asc_value
@@ -75,7 +75,7 @@ class OrderDefinitionTest < Minitest::Test
     end
   end
 
-  def test_choice_for_direction_with_invalid
+  def test_choice_for_direction_raises_on_invalid_direction
     definition = make_definition()
     assert_raises(ArgumentError){ definition.choice_for_direction(:bad) }
   end

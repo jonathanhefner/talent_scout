@@ -29,13 +29,13 @@ class ChoiceTypeTest < Minitest::Test
     assert_equal MAPPING.values.index_by(&:to_s).to_a, type.mapping.to_a
   end
 
-  def test_mapping_with_nonstring_nonsymbol_keys
+  def test_raises_on_non_string_non_symbol_keys
     assert_raises(ArgumentError) do
       TalentScout::ChoiceType.new({ 1 => 1 })
     end
   end
 
-  def test_mapping_after_dup
+  def test_dup_copies_mapping
     type1 = TalentScout::ChoiceType.new(MAPPING)
     type2 = type1.dup
     assert_equal type1.mapping, type2.mapping

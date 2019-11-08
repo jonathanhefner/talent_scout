@@ -3,7 +3,7 @@ require "talent_scout"
 
 class VoidTypeTest < Minitest::Test
 
-  def test_underlying_type
+  def test_underlying_type_is_boolean
     type = TalentScout::VoidType.new
     assert_equal ActiveModel::Type.lookup(:boolean), type.underlying_type
   end

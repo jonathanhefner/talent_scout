@@ -14,7 +14,7 @@ class ModelSearchTest < Minitest::Test
     assert_attributes CRITERIA_VALUES, search
   end
 
-  def test_constructor_with_invalid_controller_params
+  def test_constructor_ignores_invalid_controller_params
     params = ActionController::Parameters.new(CRITERIA_VALUES.merge(bad: "BAD"))
     search = MyModelSearch.new(params) # should not raise
     refute_includes search.attributes.symbolize_keys, :bad
@@ -55,7 +55,7 @@ class ModelSearchTest < Minitest::Test
     assert_attributes CRITERIA_VALUES, search
   end
 
-  def test_attribute_value_before_type_cast_readers
+  def test_attribute_value_before_type_cast_methods
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)
     before_type_cast.each do |name, value|
@@ -95,7 +95,7 @@ class ModelSearchTest < Minitest::Test
     assert_composition %i[scope1 scope2 scope3 col1], search
   end
 
-  def test_results_with_full_criteria_values
+  def test_results
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_results CRITERIA_VALUES, search
   end
@@ -106,7 +106,7 @@ class ModelSearchTest < Minitest::Test
     assert_results criteria_values, search
   end
 
-  def test_results_with_missing_criteria_values
+  def test_results_with_some_criteria_values_excluded
     CRITERIA_VALUES.keys.each do |name|
       search = MyModelSearch.new(CRITERIA_VALUES.except(name))
       expected_values = CRITERIA_DEFAULT_VALUES.key?(name) ?
@@ -116,7 +116,7 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_with_explicit_nil_criteria_values
+  def test_results_with_nil_criteria_values
     nilable = CRITERIA_VALUES.keys.grep(/^(?:str|date)\d/)
     refute_empty nilable # sanity check
     nilable.each do |name|
@@ -136,12 +136,12 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_skips_conditional_criteria_block
+  def test_results_skips_conditional_criteria_block_as_necessary
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
     assert_results CRITERIA_VALUES.except(:skip_if_neg), search
   end
 
-  def test_results_skips_void_type_criteria
+  def test_results_skips_void_type_criteria_as_necessary
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_false: false))
     assert_results CRITERIA_VALUES.except(:skip_if_false), search
   end
@@ -211,7 +211,7 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_each_choice_sensitive_to_block_arity
+  def test_each_choice_is_sensitive_to_block_arity
     criteria = CRITERIA_CHOICES.keys.first
     search = MyModelSearch.new
     expected = search.each_choice(criteria).map{|k, v| k }
@@ -260,7 +260,7 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, actual
   end
 
-  def test_order_default_not_specified
+  def test_order_default_when_no_default_specified
     assert_nil MyOrderableModelSearch.new.order
   end
 
@@ -302,7 +302,7 @@ class ModelSearchTest < Minitest::Test
     assert_equal ({}), search.order_directions
   end
 
-  def test_order_directions_frozen
+  def test_order_directions_is_frozen
     assert MyModelSearch.new.order_directions.frozen?
     assert MyOtherModelSearch.new.order_directions.frozen?
   end

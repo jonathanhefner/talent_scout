@@ -8,7 +8,7 @@ class ControllerTest < Minitest::Test
     assert_equal MyModelSearch, MyModelsController.model_search_class
   end
 
-  def test_model_search_class_without_search_class
+  def test_model_search_class_raises_when_search_class_does_not_exist
     assert_raises{ NoSearchController.model_search_class }
   end
 
@@ -16,7 +16,7 @@ class ControllerTest < Minitest::Test
     assert_equal MyModelSearch, MyModelsController.model_search_class?
   end
 
-  def test_model_search_class_predicate_without_search_class
+  def test_model_search_class_predicate_does_not_raise_when_search_class_does_not_exist
     refute NoSearchController.model_search_class? # does not raise
   end
 
