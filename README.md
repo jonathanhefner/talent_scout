@@ -42,10 +42,16 @@ end
 ```html+erb
 <!-- app/views/posts/index.html.erb -->
 
-<%= form_with model: @search, method: :get do |form| %>
+<%= form_with model: @search, local: true, method: :get do |form| %>
+  <%= form.label :title_includes %>
   <%= form.text_field :title_includes %>
+
+  <%= form.label :within %>
   <%= form.select :within, @search.each_choice(:within), include_blank: true %>
+
+  <%= form.label :only_published %>
   <%= form.check_box :only_published %>
+
   <%= form.submit %>
 <% end %>
 
@@ -519,15 +525,21 @@ Search forms can be rendered using Rails' form builder and a search
 object:
 
 ```html+erb
-<%= form_with model: @search, method: :get do |form| %>
+<%= form_with model: @search, local: true, method: :get do |form| %>
+  <%= form.label :title_includes %>
   <%= form.text_field :title_includes %>
+
+  <%= form.label :created_on %>
   <%= form.date_field :created_on %>
+
+  <%= form.label :only_published %>
   <%= form.check_box :only_published %>
+
   <%= form.submit %>
 <% end %>
 ```
 
-Notice the `method: :get` argument to `form_with`; this is **required**.
+Notice the `method: :get` argument to `form_with`; **this is required**.
 
 Form fields will be populated with the criteria input (or default)
 values of the same name from `@search`.  Type-appropriate form fields
@@ -646,7 +658,7 @@ end
 ```
 
 ```html+erb
-<%= form_with model: @search, method: :get do |form| %>
+<%= form_with model: @search, local: true, method: :get do |form| %>
   <%= form.select :category, @search.each_choice(:category) %>
   <%= form.submit %>
 <% end %>
@@ -668,7 +680,7 @@ end
 ```
 
 ```html+erb
-<%= form_with model: @search, method: :get do |form| %>
+<%= form_with model: @search, local: true, method: :get do |form| %>
   <%= form.select :order, @search.each_choice(:order) %>
   <%= form.submit %>
 <% end %>
