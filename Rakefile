@@ -1,10 +1,5 @@
 require 'bundler/setup'
 
-require 'yard'
-
-YARD::Rake::YardocTask.new(:doc) do |t|
-end
-
 require 'bundler/gem_tasks'
 
 require 'rake/testtask'
