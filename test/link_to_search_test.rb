@@ -29,7 +29,7 @@ class LinkToSearchTest < ActionView::TestCase
 
   def test_supports_override_controller
     options = { controller: MyOtherModelsController.controller_path, search: SEARCH }
-    assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), options
+    assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), **options
   end
 
   def test_defaults_to_current_action
@@ -40,7 +40,7 @@ class LinkToSearchTest < ActionView::TestCase
 
   def test_supports_override_action
     options = { action: "new", search: SEARCH }
-    assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), options
+    assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), **options
   end
 
   def test_supports_extra_query_params

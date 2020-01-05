@@ -260,7 +260,7 @@ module TalentScout
       criteria_list << crit
 
       crit.names.each do |name|
-        attribute name, type, attribute_options
+        attribute name, type, **attribute_options
 
         # HACK FormBuilder#select uses normal attribute readers instead
         # of `*_before_type_cast` attribute readers.  This breaks value
@@ -358,12 +358,12 @@ module TalentScout
     # @option options :desc_suffix [String] (".desc")
     # @return [void]
     def self.order(name, columns = nil, default: false, **options)
-      definition = OrderDefinition.new(name, columns, options)
+      definition = OrderDefinition.new(name, columns, **options)
 
       if !attribute_types.fetch("order", nil).equal?(order_type) || default
         criteria_options = default ? { default: definition.choice_for_direction(default) } : {}
         criteria_list.reject!{|crit| crit.names == ["order"] }
-        criteria "order", order_type, criteria_options, &:order
+        criteria "order", order_type, **criteria_options, &:order
       end
 
       order_type.add_definition(definition)

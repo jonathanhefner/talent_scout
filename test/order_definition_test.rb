@@ -87,7 +87,7 @@ class OrderDefinitionTest < Minitest::Test
   ALL_COLUMNS = DYNAMIC_COLUMNS + STATIC_COLUMNS
 
   def make_definition(columns = ALL_COLUMNS, **options)
-    TalentScout::OrderDefinition.new("my_order", columns, options)
+    TalentScout::OrderDefinition.new("my_order", columns, **options)
   end
 
 end

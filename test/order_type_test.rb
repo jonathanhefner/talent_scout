@@ -67,7 +67,7 @@ class OrderTypeTest < Minitest::Test
   COLUMNS = ["col1", "col2", "col3"]
 
   def make_definitions(columns, **options)
-    columns.map{|column| TalentScout::OrderDefinition.new(column, [column], options) }
+    columns.map{|column| TalentScout::OrderDefinition.new(column, [column], **options) }
   end
 
   def make_type(definitions)
