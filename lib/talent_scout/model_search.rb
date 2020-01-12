@@ -7,10 +7,10 @@ module TalentScout
     extend ActiveModel::Translation
 
     # Returns the model class that the search targets.  Defaults to a
-    # class with same name name as the search class, minus the "Search"
-    # suffix.  The model class can also be set with {model_class=}.
-    # If the model class has not been set, and the default class does
-    # not exist, a +NameError+ will be raised.
+    # class with same name as the search class, minus the "Search"
+    # suffix.  The class can be set with {model_class=}.  If the class
+    # has not been set and the default class does not exist, a
+    # +NameError+ will be raised.
     #
     # @example Default behavior
     #   class PostSearch < TalentScout::ModelSearch
@@ -27,8 +27,7 @@ module TalentScout
     #
     # @return [Class]
     # @raise [NameError]
-    #   if the model class has not been set and the default class does
-    #   not exist
+    #   if the model class does not exist
     def self.model_class
       @model_class ||= self.superclass == ModelSearch ?
         self.name.chomp("Search").constantize : self.superclass.model_class
@@ -37,7 +36,7 @@ module TalentScout
     # Sets the model class that the search targets.  See {model_class}.
     #
     # @param model_class [Class]
-    # @return [Class]
+    # @return [model_class]
     def self.model_class=(model_class)
       @model_class = model_class
     end
@@ -66,7 +65,7 @@ module TalentScout
     #   end
     #
     #   class PostSearch < TalentScout::ModelSearch
-    #     default_scope(&:published)
+    #     default_scope &:published
     #   end
     #
     #   PostSearch.new.results  # == Post.published
@@ -78,36 +77,36 @@ module TalentScout
       criteria_list.insert(i, Criteria.new([], true, &block))
     end
 
-    # Defines criteria to incorporate into the search.  Each criteria
-    # corresponds to an attribute on the search object that can be used
-    # when building a search form.
-    #
-    # Each attribute has a type, just as Active Model attributes do, and
-    # values passed into the search object are typecasted before
-    # criteria are evaluated.  Supported types are the same as Active
-    # Model (e.g. +:string+, +:boolean+, +:integer+, etc), with the
-    # addition of a +:void+ type.  A +:void+ type is just like a
-    # +:boolean+ type, except that the criteria is not evaluated when
-    # the typecasted value is falsey.
+    # Defines criteria that can be incorporated into a search.  The
+    # criteria will have a corresponding attribute on the search object
+    # that can be used when building a search form.  The type of the
+    # attribute can be specified, just as with Active Model attributes,
+    # and the attribute value will be typecasted before the criteria is
+    # incorporated.  Supported types are the same as Active Model (e.g.
+    # +:string+, +:boolean+, +:integer+, etc).  The default type is
+    # +:string+.  An additional +:void+ type is also supported, which
+    # typecasts like the +:boolean+ type, but prevents the criteria
+    # from being incorporated if the typecasted value is falsey.
     #
     # Alternatively, instead of a type, an Array or Hash of +choices+
-    # can be specified, and the criteria will be evaluated only if the
-    # passed-in value matches one of the choices.
+    # can be specified, and the criteria will be incorporated only if
+    # the attribute value matches one of the choices.
     #
     # Active Model +attribute_options+ can also be specified.  Most
-    # notably, the +:default+ option provides the criteria a default
-    # value to operate on.
+    # notably, the +:default+ option can specify a default value for the
+    # criteria to operate on.  If a default value is not specified, the
+    # criteria will be incorporated only if the attribute value is set.
     #
-    # Each criteria can specify a block which recieves its corresponding
-    # typecasted value as an argument.  If the corresponding value is
-    # not set on the search object, and no default value is defined,
-    # the criteria will not be evaluated.  Like an Active Record
-    # +scope+ block, a criteria block is evaluated in the context of an
-    # +ActiveRecord::Relation+, and should return an
-    # +ActiveRecord::Relation+.  A criteria block may also return nil,
-    # in which case the criteria will be skipped.  If no criteria block
-    # is specified, the criteria will be evaluated as a +where+ clause
-    # using the criteria name and typecasted value.
+    # If no block is given, the criteria will be incorporated as a
+    # +where+ clause using the criteria name and typecasted attribute
+    # value.
+    #
+    # If a block is given, it will be passed the typecasted attribute
+    # value, and it will be evaluated in the context of an
+    # +ActiveRecord::Relation+, like Active Record +scope+ blocks are.
+    # The block should return an +ActiveRecord::Relation+.  The block
+    # may also return nil, in which case the criteria will not be
+    # incorporated.
     #
     # As a convenient shorthand, Active Record scopes which have been
     # defined on the {model_class} can be used directly as criteria
@@ -115,7 +114,7 @@ module TalentScout
     # the criteria block.
     #
     #
-    # @example Implicit block
+    # @example Without a block
     #   class PostSearch < TalentScout::ModelSearch
     #     criteria :title
     #   end
@@ -123,7 +122,7 @@ module TalentScout
     #   PostSearch.new(title: "FOO").results  # == Post.where(title: "FOO")
     #
     #
-    # @example Explicit block
+    # @example With a block
     #   class PostSearch < TalentScout::ModelSearch
     #     criteria :title do |string|
     #       where("title LIKE ?", "%#{string}%")
@@ -209,33 +208,33 @@ module TalentScout
     #   PostSearch.new(within_days: 2).results  # == Post.where("created_at >= ?", 2.days.ago)
     #
     #
-    # @overload criteria(names, type = :string, **attribute_options, &block)
-    #   @param names [String, Symbol, Array<String>, Array<Symbol>]
+    # @overload criteria(name, type = :string, **attribute_options)
+    #   @param name [String, Symbol]
+    #   @param type [Symbol, ActiveModel::Type]
+    #   @param attribute_options [Hash]
+    #   @option attribute_options :default [Object]
+    #
+    # @overload criteria(name, type = :string, **attribute_options, &block)
+    #   @param name [String, Symbol]
     #   @param type [Symbol, ActiveModel::Type]
     #   @param attribute_options [Hash]
     #   @option attribute_options :default [Object]
     #   @yieldparam value [Object]
     #   @yieldreturn [ActiveRecord::Relation, nil]
     #
-    # @overload criteria(names, type = :string, **attribute_options)
-    #   @param names [String, Symbol, Array<String>, Array<Symbol>]
-    #   @param type [Symbol, ActiveModel::Type]
+    # @overload criteria(name, choices:, **attribute_options)
+    #   @param name [String, Symbol]
+    #   @param choices [Array<String>, Array<Symbol>, Hash{String => Object}, Hash{Symbol => Object}]
     #   @param attribute_options [Hash]
     #   @option attribute_options :default [Object]
+    #   @yieldreturn [ActiveRecord::Relation, nil]
     #
-    # @overload criteria(names, choices:, **attribute_options, &block)
-    #   @param names [String, Symbol, Array<String>, Array<Symbol>]
-    #   @param choices [Array<String>, Array<Symbol>, Hash<String, Object>, Hash<Symbol, Object>]
+    # @overload criteria(name, choices:, **attribute_options, &block)
+    #   @param name [String, Symbol]
+    #   @param choices [Array<String>, Array<Symbol>, Hash{String => Object}, Hash{Symbol => Object}]
     #   @param attribute_options [Hash]
     #   @option attribute_options :default [Object]
     #   @yieldparam value [Object]
-    #   @yieldreturn [ActiveRecord::Relation, nil]
-    #
-    # @overload criteria(names, choices:, **attribute_options)
-    #   @param names [String, Symbol, Array<String>, Array<Symbol>]
-    #   @param choices [Array<String>, Array<Symbol>, Hash<String, Object>, Hash<Symbol, Object>]
-    #   @param attribute_options [Hash]
-    #   @option attribute_options :default [Object]
     #   @yieldreturn [ActiveRecord::Relation, nil]
     #
     # @return [void]
@@ -273,24 +272,24 @@ module TalentScout
       end
     end
 
-    # Defines an order that the search can apply to its results.  Only
-    # one order can be applied at a time, but an order can be defined
-    # over multiple columns.  If no columns are specified, the order's
-    # +name+ is taken as its column.
+    # Defines a result order that can be incorporated into a search.
+    # Only one order can be incorporated at a time, but an order can
+    # comprise multiple columns.  If no columns are specified, the
+    # order's +name+ is taken as its column.
     #
-    # Each order can be applied in an ascending or descending direction
-    # by appending a corresponding suffix to the order value.  By
-    # default, these suffixes are +".asc"+ and +".desc"+, but they can
-    # be overridden in the order definition using the +:asc_suffix+ and
-    # +:desc_suffix+ options, respectively.
+    # An order can be incorporated in either ascending or descending
+    # direction by appending an appropriate suffix to the order value.
+    # By default, these suffixes are +".asc"+ and +".desc"+, but they
+    # can be overridden in the order definition using the +:asc_suffix+
+    # and +:desc_suffix+ options, respectively.
     #
-    # Order direction affects all columns of an order defintion, unless
+    # The order direction will affect all columns of the order, unless
     # a column explicitly specifies +"ASC"+ or +"DESC"+, in which case
     # that column will stay fixed in its specified direction.
     #
-    # To apply an order to the search results by default, use the
-    # +:default+ option in the order definition.  (Note that only one
-    # order can be designated as the default order.)
+    # To designate the order as the default result order, use the
+    # +:default+ option.  (Note that only one order can be designated as
+    # the default order.)
     #
     # @see toggle_order
     #
@@ -350,13 +349,14 @@ module TalentScout
     #   PostSearch.new(order: :title).results            # == Post.order("title")
     #
     #
-    # @param name [String, Symbol]
-    # @param columns [Array<String>, Array<Symbol>, nil]
-    # @param options [Hash]
-    # @option options :default [Boolean, :asc, :desc] (false)
-    # @option options :asc_suffix [String] (".asc")
-    # @option options :desc_suffix [String] (".desc")
-    # @return [void]
+    # @overload order(name, columns = [name], **options)
+    #   @param name [String, Symbol]
+    #   @param columns [Array<String>, Array<Symbol>]
+    #   @param options [Hash]
+    #   @option options :default [Boolean, :asc, :desc] (false)
+    #   @option options :asc_suffix [String] (".asc")
+    #   @option options :desc_suffix [String] (".desc")
+    #   @return [void]
     def self.order(name, columns = nil, default: false, **options)
       definition = OrderDefinition.new(name, columns, **options)
 
@@ -376,7 +376,7 @@ module TalentScout
     # ignored.  This behavior prevents empty search form fields from
     # affecting search results.
     #
-    # @param params [Hash<String, Object>, Hash<Symbol, Object>, ActionController::Parameters]
+    # @param params [Hash{String => Object}, Hash{Symbol => Object}, ActionController::Parameters]
     # @raise [ActiveModel::UnknownAttributeError]
     #   if +params+ is a Hash, and it contains an unrecognized key
     def initialize(params = {})
@@ -416,8 +416,8 @@ module TalentScout
       end
     end
 
-    # Builds a new model search object with +criteria_values+ merged on
-    # top of the subject search object's criteria values.
+    # Builds a new search object with +criteria_values+ merged on top of
+    # the subject search object's criteria values.
     #
     # Does not modify the subject search object.
     #
@@ -433,7 +433,7 @@ module TalentScout
     #   search.with(category: "tech").results  # == Post.where(category: "tech")
     #   search.results                         # == Post.where(category: "math")
     #
-    # @param criteria_values [Hash<String, Object>, Hash<Symbol, Object>]
+    # @param criteria_values [Hash{String => Object}, Hash{Symbol => Object}]
     # @return [TalentScout::ModelSearch]
     # @raise [ActiveModel::UnknownAttributeError]
     #   if one or more +criteria_values+ keys are invalid
@@ -441,7 +441,7 @@ module TalentScout
       self.class.new(attributes.merge!(criteria_values.stringify_keys))
     end
 
-    # Builds a new model search object with the subject search object's
+    # Builds a new search object with the subject search object's
     # criteria values, excluding values specified by +criteria_names+.
     # Default criteria values will still be applied.
     #
@@ -471,12 +471,12 @@ module TalentScout
       self.class.new(attributes.except!(*criteria_names))
     end
 
-    # Builds a new model search object with the specified order applied
-    # on top of the subject search object's criteria values.  If the
-    # subject search object already has the specified order applied, the
-    # order's direction will be toggled from +:asc+ to +:desc+ or from
-    # +:desc+ to +:asc+.  Otherwise, the specified order will be applied
-    # with an +:asc+ direction, overriding any previously applied order.
+    # Builds a new search object with the specified order applied on top
+    # of the subject search object's criteria values.  If the subject
+    # search object already has the specified order applied, the order's
+    # direction will be toggled from +:asc+ to +:desc+ or from +:desc+
+    # to +:asc+.  Otherwise, the specified order will be applied with an
+    # +:asc+ direction, overriding any previously applied order.
     #
     # If +direction+ is explicitly specified, that direction will be
     # applied regardless of previously applied direction.
@@ -510,9 +510,9 @@ module TalentScout
     # Iterates over a specified {criteria}'s defined choices.  If the
     # given block accepts a 2nd argument, a boolean will be passed
     # indicating whether that choice is currently assigned to the
-    # specified criteria.
+    # specified criteria attribute.
     #
-    # An Enumerator is returned if no block is given.
+    # If no block is given, an Enumerator is returned instead.
     #
     # @example With block
     #   class PostSearch < TalentScout::ModelSearch
@@ -577,9 +577,9 @@ module TalentScout
 
     # Returns a +HashWithIndifferentAccess+ with a key for each defined
     # {order}.  Each key's associated value indicates that order's
-    # currently applied direction -- +:asc+, +:desc+, or +nil+ if the
+    # currently applied direction -- +:asc+, +:desc+, or nil if the
     # order is not applied.  Note that only one order can be applied at
-    # a time, so, at most, one value in the Hash will be non-+nil+.
+    # a time, so, at most, one value in the Hash will be non-nil.
     #
     # @example
     #   class PostSearch < TalentScout::ModelSearch

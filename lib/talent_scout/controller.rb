@@ -5,9 +5,9 @@ module TalentScout
     module ClassMethods
       # Returns the controller model search class.  Defaults to a class
       # corresponding to the singular form of the controller name.  The
-      # model search class can also be set with {model_search_class=}.
-      # If the model search class has not been set, and the default
-      # class does not exist, a +NameError+ will be raised.
+      # class can be set with {model_search_class=}.  If the class has
+      # not been set and the default class does not exist, a +NameError+
+      # will be raised.
       #
       # @example
       #   class PostsController < ApplicationController
@@ -17,8 +17,7 @@ module TalentScout
       #
       # @return [Class<TalentScout::ModelSearch>]
       # @raise [NameError]
-      #   if the model search class has not been set and the default
-      #   class does not exist
+      #   if the model search class does not exist
       def model_search_class
         @model_search_class ||= "#{controller_path.classify}Search".constantize
       end
@@ -26,14 +25,13 @@ module TalentScout
       # Sets the controller model search class.  See {model_search_class}.
       #
       # @param klass [Class<TalentScout::ModelSearch>]
-      # @return [Class<TalentScout::ModelSearch>]
+      # @return [klass]
       def model_search_class=(klass)
         @model_search_class = klass
       end
 
       # Similar to {model_search_class}, but returns nil instead of
-      # raising an error when the value has not been set and the default
-      # class does not exist.
+      # raising an error when the model search class does not exist.
       #
       # @return [Class<TalentScout::ModelSearch>, nil]
       def model_search_class?
@@ -46,9 +44,9 @@ module TalentScout
       end
     end
 
-    # Instantiates {ClassMethods#model_search_class} using the current
-    # request's query params.  If that class does not exist, a
-    # +NameError+ will be raised.
+    # Instantiates {ClassMethods#model_search_class ::model_search_class}
+    # using the current request's query params.  If that class does not
+    # exist, a +NameError+ will be raised.
     #
     # @return [TalentScout::ModelSearch]
     # @raise [NameError]
