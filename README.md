@@ -83,13 +83,13 @@ In the above example:
 
 * The `PostSearch` class handles the responsibility of searching for
   `Post` models.  It can apply any combination of its defined criteria,
-  automatically ignoring missing or blank input values.  It can also
-  order the results by one of its defined orders, in either ascending or
-  descending direction.
+  automatically ignoring missing, blank, or invalid input values.  It
+  can also order the results by one of its defined orders, in either
+  ascending or descending direction.
 * `PostsController#index` uses the `model_search` helper to construct a
-  `PostSearch`, and assigns it to the `@search` variable for later use
-  in the view.  The search results are also assigned to a variable for
-  use in the view.
+  `PostSearch` instance, and assigns it to the `@search` variable for
+  later use in the view.  The search results are also assigned to a
+  variable for use in the view.
 * The view uses Rails' stock form builder to build a search form with
   the `@search` variable.  The `link_to_search` helper is used to create
   links in the table header which sort the results.  Note that the
@@ -97,13 +97,13 @@ In the above example:
   `@search` unmodified.
 
 For a detailed explanation of the methods used in this example, see
-the [API documentation](http://www.rubydoc.info/gems/talent_scout/).
+the [API documentation](https://www.rubydoc.info/gems/talent_scout/).
 
 
-## Search Objects
+## Search Classes
 
-You can use the `talent_scout:search` generator to generate search
-object class definitions.  For example,
+You can use the `talent_scout:search` generator to generate a model
+search class definition.  For example,
 
 ```bash
 $ rails generate talent_scout:search post
@@ -116,14 +116,14 @@ class PostSearch < TalentScout::ModelSearch
 end
 ```
 
-Search objects inherit from `TalentScout::ModelSearch`.  Their target
-model class is inferred from the search object's class name.  For
-example, `PostSearch` will search for `Post` models by default.  To
-override this behavior, use `ModelSearch::model_class=`:
+Search classes inherit from `TalentScout::ModelSearch`.  Their target
+model class is inferred from the search class name.  For example,
+`PostSearch` will search for `Post` models by default.  To override this
+inference, use `ModelSearch::model_class=`:
 
 ```ruby
 class EmployeeSearch < TalentScout::ModelSearch
-  self.model_class = Person # will search for Person models instead of `Employee`
+  self.model_class = Person # search for Person models instead of `Employee`
 end
 ```
 
@@ -153,7 +153,8 @@ end
 ```
 
 Note that explicit query blocks are evaluated in the context of the
-model's `ActiveRecord::Relation`, just as model scopes are.
+model's `ActiveRecord::Relation`, just like Active Record `scope` blocks
+are.
 
 
 #### Criteria Type
@@ -186,7 +187,7 @@ Available criteria types are the same as for Active Model attributes:
 `:integer`, `:string`, `:time`, plus any custom types you define.
 
 An additional convenience type is also available: `:void`.  The `:void`
-type is just like `:boolean`, except that the criteria will not be
+type typecasts like `:boolean`, but prevents the criteria from being
 applied when the typecasted value is falsey.  For example:
 
 ```ruby
@@ -337,8 +338,8 @@ PostSearch.new(order: :title)
 PostSearch.new(order: :category)
 ```
 
-Only one order can be applied at a time, but an order can be defined
-over multiple columns:
+Only one order can be applied at a time, but an order can comprise
+multiple columns:
 
 ```ruby
 class PostSearch < TalentScout::ModelSearch
@@ -391,7 +392,7 @@ end
 PostSearch.new(order: :category).toggle_order(:category)
 ```
 
-To circumvent this behavior, and instead fix a column in a static
+To circumvent this behavior and instead fix a column in a static
 direction, append `" ASC"` or `" DESC"` to the column name:
 
 ```ruby
@@ -465,7 +466,7 @@ PostSearch.new(order: :title)
 ```
 
 Note that the default order direction can be either ascending or
-descending, by specifing `default: :asc` or `default: :desc`,
+descending by specifing `default: :asc` or `default: :desc`,
 respectively.  Also, just as only one order can be applied at a time,
 only one order can be designated default.
 
@@ -513,10 +514,9 @@ class EmployeesController < ApplicationController
 end
 ```
 
-In these examples, the search object is stored in a variable for use in
-the view, as are the search results.  The search results will be an
-`ActiveRecord::Relation`, so any additional scoping, such as pagination,
-can be applied to `@search.results`.
+In these examples, the search object is stored in `@search` for use in
+the view.  Note that `@search.results` returns an `ActiveRecord::Relation`,
+so any additional scoping, such as pagination, can be applied.
 
 
 ## Search Forms
@@ -539,7 +539,7 @@ object:
 <% end %>
 ```
 
-Notice the `method: :get` argument to `form_with`; **this is required**.
+**Notice the `method: :get` argument to `form_with`.  This is required.**
 
 Form fields will be populated with the criteria input (or default)
 values of the same name from `@search`.  Type-appropriate form fields
@@ -562,7 +562,7 @@ method:
 <%= link_to_search "Sort by title", @search.toggle_order(:title, :asc) %>
 ```
 
-The link will automatically point to current controller and current
+The link will automatically point to the current controller and current
 action, with query parameters from the given search object.  To link to
 a different controller or action, pass an options Hash in place of the
 search object:
@@ -597,9 +597,9 @@ rendering the view.
 One such method is `ModelSearch#toggle_order`, which was shown in
 [previous examples](#order-direction).  Remember that `toggle_order` is
 a builder-style method that does not modify the search object.  Instead,
-it duplicates the search object, and sets the order on the new search
-object.  Such behavior is suitable to generating links to multiple
-variants of a search, such as sort links in table column headers.
+it duplicates the search object, and sets the order on the new object.
+Such behavior is suitable to generating links to multiple variants of a
+search, such as sort links in table column headers.
 
 
 ### `ModelSearch#with` and `ModelSearch#without`
@@ -641,8 +641,7 @@ PostSearch.new(title: "Maaaaath!", published: false).without(:published)
 
 Another helpful method is `ModelSearch#each_choice`, which will iterate
 over the defined choices for a given criteria.  This can be used to
-generate links to variants of a search, or to generate options for a
-select box:
+generate links to variants of a search:
 
 ```ruby
 class PostSearch < TalentScout::ModelSearch
@@ -657,16 +656,18 @@ end
 <% end %>
 ```
 
+Notice that if the block passed to `each_choice` accepts two arguments,
+the 2nd argument will indicate if the choice is currently chosen.
+
+If no block is passed to `each_choice`, it will return an `Enumerator`.
+This can be used to generate options for a select box:
+
 ```html+erb
 <%= form_with model: @search, local: true, method: :get do |form| %>
   <%= form.select :category, @search.each_choice(:category) %>
   <%= form.submit %>
 <% end %>
 ```
-
-If the block passed to `each_choice` accepts two arguments, the 2nd
-argument will indicate if the choice is currently chosen.  If no block
-is passed to `each_choice`, it will return an `Enumerator`.
 
 The `each_choice` method can also be invoked with `:order`.  Doing so
 will iterate over each direction of each defined order, yielding the
@@ -729,7 +730,7 @@ Add this line to your application's Gemfile:
 gem "talent_scout"
 ```
 
-Then execute:
+Then run:
 
 ```bash
 $ bundle install
