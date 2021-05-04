@@ -745,7 +745,7 @@ $ rails generate talent_scout:install
 
 ## Contributing
 
-Run `rake test` to run the tests.
+Run `bin/test` to run the tests.
 
 
 ## License
