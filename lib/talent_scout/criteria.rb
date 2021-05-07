@@ -1,6 +1,7 @@
 module TalentScout
   # @!visibility private
   class Criteria
+    SYMBOL_TO_PROC_ARITY = :to_s.to_proc.arity
 
     attr_reader :names, :allow_nil, :block
 
@@ -14,7 +15,7 @@ module TalentScout
       if applicable?(attribute_set)
         if block
           block_args = names.map{|name| attribute_set[name].value }
-          if block.arity == -1 # block from Symbol#to_proc
+          if block.arity == SYMBOL_TO_PROC_ARITY # assume block is from Symbol#to_proc
             scope.instance_exec(scope, *block_args, &block)
           else
             scope.instance_exec(*block_args, &block)
