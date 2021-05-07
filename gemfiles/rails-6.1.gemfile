@@ -1,0 +1,3 @@
+eval_gemfile "../Gemfile"
+
+gem "rails", "~> 6.1.0"
