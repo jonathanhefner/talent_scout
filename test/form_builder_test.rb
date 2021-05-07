@@ -56,7 +56,7 @@ class FormBuilderTest < ActionView::TestCase
     criteria :choice1, choices: { "one" => 1, "two" => 2, "three" => 3 }
   end
 
-  def form_builder_test_my_models_path(*args) # mock route helper
+  public def form_builder_test_my_models_path(*args) # mock route helper
     "/#{MyModel.model_name.route_key}"
   end
 
