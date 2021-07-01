@@ -724,19 +724,13 @@ in the Hash, at most, will be non-`nil`.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem "talent_scout"
-```
-
-Then run:
+Add the gem to your Gemfile:
 
 ```bash
-$ bundle install
+$ bundle add talent_scout
 ```
 
-And finally, run the installation generator:
+And run the installation generator:
 
 ```bash
 $ rails generate talent_scout:install
