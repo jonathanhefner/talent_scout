@@ -1,5 +1,3 @@
-Warning[:deprecated] = true if Warning.respond_to?(:[]=)
-
 # Configure Rails Environment
 ENV["RAILS_ENV"] = "test"
 
