@@ -4,7 +4,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        ruby: ["3.2", "3.3"]
+        ruby: ["3.2", "3.3", "3.4"]
         gemfile: [rails-8.0]
       fail-fast: false
 
