@@ -9,7 +9,6 @@ Gem::Specification.new do |spec|
   spec.summary     = %q{Model-backed searches in Rails}
   spec.license     = "MIT"
 
-  spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = spec.metadata["source_code_uri"] + "/blob/master/CHANGELOG.md"
 
