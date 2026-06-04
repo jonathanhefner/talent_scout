@@ -1,3 +1,0 @@
-eval_gemfile "../Gemfile"
-
-gem "rails", github: "rails/rails"
