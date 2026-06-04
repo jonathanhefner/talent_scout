@@ -3,7 +3,7 @@ require "talent_scout"
 
 
 Post.class_eval do
-  enum category: [:science, :technology, :engineering, :math]
+  enum :category, [:science, :technology, :engineering, :math]
 end
 
 class PostSearch < TalentScout::ModelSearch
