@@ -466,7 +466,7 @@ PostSearch.new(order: :title)
 ```
 
 Note that the default order direction can be either ascending or
-descending by specifing `default: :asc` or `default: :desc`,
+descending by specifying `default: :asc` or `default: :desc`,
 respectively.  Also, just as only one order can be applied at a time,
 only one order can be designated default.
 
