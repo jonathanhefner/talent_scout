@@ -45,7 +45,7 @@ class SystemTest < ActionDispatch::SystemTestCase
 
   driven_by :rack_test
 
-  def test_various_searches
+  test "various searches" do
     combinations = [nil, "1", "2"].product([nil, :technology, :math], [nil, true, false])
 
     combinations.each do |title_end_with, category, published|

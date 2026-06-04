@@ -1,28 +1,28 @@
 require "test_helper"
 require "talent_scout"
 
-class VoidTypeTest < Minitest::Test
+class VoidTypeTest < ActiveSupport::TestCase
 
-  def test_underlying_type_is_boolean
+  test "underlying type is :boolean" do
     type = TalentScout::VoidType.new
     assert_equal ActiveModel::Type.lookup(:boolean), type.underlying_type
   end
 
-  def test_cast_truthy
+  test "cast truthy values" do
     type = TalentScout::VoidType.new
     [true, "true", 1, "1"].each do |truthy|
       assert_equal true, type.cast(truthy)
     end
   end
 
-  def test_cast_falsey
+  test "cast falsey values" do
     type = TalentScout::VoidType.new
     [false, "false", 0, "0", nil, ""].each do |falsey|
       assert_nil type.cast(falsey)
     end
   end
 
-  def test_attribute_assignment
+  test "attribute assignment" do
     expected = true
     model = MyModel.new(void1: expected.to_s)
     assert_equal expected, model.void1

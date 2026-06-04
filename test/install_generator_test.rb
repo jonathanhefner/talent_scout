@@ -6,7 +6,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
   destination File.expand_path("../tmp", __dir__)
   setup :prepare_destination
 
-  def test_creates_necessary_files
+  test "creates necessary files" do
     run_generator
 
     assert_file "config/locales/talent_scout.en.yml"

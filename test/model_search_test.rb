@@ -1,43 +1,43 @@
 require "test_helper"
 require "talent_scout"
 
-class ModelSearchTest < Minitest::Test
+class ModelSearchTest < ActiveSupport::TestCase
 
-  def test_kind_of_active_model
+  test "ModelSearch is an ActiveModel::Model" do
     assert_kind_of ActiveModel::Model, MyModelSearch.new
   end
 
-  def test_constructor_with_unsafe_controller_params
+  test "constructor accepts unsafe controller params" do
     params = ActionController::Parameters.new(CRITERIA_VALUES)
-    refute params.permitted? # sanity check
+    assert_not params.permitted? # sanity check
     search = MyModelSearch.new(params) # should not raise
     assert_attributes CRITERIA_VALUES, search
   end
 
-  def test_constructor_ignores_invalid_controller_params
+  test "constructor ignores invalid controller params" do
     params = ActionController::Parameters.new(CRITERIA_VALUES.merge(bad: "BAD"))
     search = MyModelSearch.new(params) # should not raise
-    refute_includes search.attributes.symbolize_keys, :bad
+    assert_not_includes search.attributes.symbolize_keys, :bad
   end
 
-  def test_constructor_ignores_blank_controller_params
+  test "constructor ignores blank controller params" do
     params = ActionController::Parameters.new(CRITERIA_VALUES.transform_values{ "" })
     search = MyModelSearch.new(params)
     assert_equal MyModelSearch.new.attributes, search.attributes
   end
 
-  def test_constructor_raises_on_invalid_criteria_name
+  test "constructor raises on an invalid criteria name" do
     assert_raises ActiveModel::UnknownAttributeError do
       MyModelSearch.new(bad: "BAD")
     end
   end
 
-  def test_attribute_assignment_type_casts_values
+  test "attribute assignment type casts values" do
     search = MyModelSearch.new(CRITERIA_VALUES.transform_values(&:to_s))
     assert_attributes CRITERIA_VALUES, search
   end
 
-  def test_attribute_assignment_type_casts_multiparameter_values
+  test "attribute assignment type casts multiparameter values" do
     multiparameter = CRITERIA_VALUES.flat_map do |name, value|
       case value
       when Date
@@ -55,7 +55,7 @@ class ModelSearchTest < Minitest::Test
     assert_attributes CRITERIA_VALUES, search
   end
 
-  def test_attribute_value_before_type_cast_methods
+  test "attribute value_before_type_cast methods" do
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)
     before_type_cast.each do |name, value|
@@ -63,55 +63,55 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_attribute_default_values
+  test "attribute default values" do
     expected = CRITERIA_VALUES.transform_values{ nil }.merge(CRITERIA_DEFAULT_VALUES)
     assert_attributes expected, MyModelSearch.new
   end
 
-  def test_guess_model_class
+  test "guess model_class" do
     assert_equal MyModel, MyModelSearch.model_class
   end
 
-  def test_override_model_class
+  test "override model_class" do
     assert_equal MyModel, MyOtherModelSearch.model_class
   end
 
-  def test_inherits_model_class
+  test "inherit model_class" do
     assert_equal MyModel, MyInheritingSearch.model_class
   end
 
-  def test_default_scope
+  test "default_scope" do
     search = MyOtherModelSearch.new
     assert_composition %i[scope1 scope2], search
   end
 
-  def test_default_scope_is_inherited
+  test "default_scope is inherited" do
     search = MyOtherInheritingSearch.new
     assert_composition %i[scope1 scope2 scope3], search
   end
 
-  def test_default_scope_precedes_criteria
+  test "default_scope precedes criteria" do
     search = MyOtherInheritingSearch.new(col1: "abc")
     assert_composition %i[scope1 scope2 scope3 col1], search
   end
 
-  def test_results
+  test "#results" do
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_results CRITERIA_VALUES, search
   end
 
-  def test_inherits_criteria
+  test "inherits criteria" do
     criteria_values = CRITERIA_VALUES.merge(new_str1: "new")
     search = MyInheritingSearch.new(criteria_values)
     assert_results criteria_values, search
   end
 
-  def test_results_with_no_criteria_values
+  test "#results with no criteria values" do
     search = MyNoDefaultsModelSearch.new
     assert_results [], search
   end
 
-  def test_results_with_some_criteria_values_excluded
+  test "#results with some criteria values excluded" do
     CRITERIA_VALUES.keys.each do |name|
       search = MyModelSearch.new(CRITERIA_VALUES.except(name))
       expected_values = CRITERIA_DEFAULT_VALUES.key?(name) ?
@@ -121,9 +121,9 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_with_nil_criteria_values
+  test "#results with nil criteria values" do
     nilable = CRITERIA_VALUES.keys.grep(/^(?:str|date)\d/)
-    refute_empty nilable # sanity check
+    assert_not_empty nilable # sanity check
     nilable.each do |name|
       criteria_values = CRITERIA_VALUES.merge(name => nil)
       search = MyModelSearch.new(criteria_values)
@@ -131,9 +131,9 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_with_invalid_criteria_values
+  test "#results with invalid criteria values" do
     fallible = CRITERIA_VALUES.keys.grep(/^(?:date|choice)\d/)
-    refute_empty fallible # sanity check
+    assert_not_empty fallible # sanity check
     fallible.each do |name|
       search = MyModelSearch.new(CRITERIA_VALUES.merge(name => "BAD"))
       expected_values = CRITERIA_VALUES.except(*CRITERIA_GROUPINGS[name])
@@ -141,45 +141,45 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_results_skips_conditional_criteria_block_as_necessary
+  test "#results skips conditional criteria blocks as necessary" do
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_neg: -1))
     assert_results CRITERIA_VALUES.except(:skip_if_neg), search
   end
 
-  def test_results_skips_void_type_criteria_as_necessary
+  test "#results skips :void criteria as necessary" do
     search = MyModelSearch.new(CRITERIA_VALUES.merge(skip_if_false: false))
     assert_results CRITERIA_VALUES.except(:skip_if_false), search
   end
 
-  def test_modify_via_with
+  test "#with modifies a search" do
     search1 = MyModelSearch.new
     search2 = search1.with(CRITERIA_VALUES)
-    refute_equal search1.results, search2.results
+    assert_not_equal search1.results, search2.results
     assert_results CRITERIA_VALUES, search2
   end
 
-  def test_modify_via_with_raises_on_invalid_criteria_name
+  test "#with raises on an invalid criteria name" do
     search = MyModelSearch.new
     assert_raises ActiveModel::UnknownAttributeError do
       search.with(bad: "BAD")
     end
   end
 
-  def test_modify_via_without
+  test "#without modifies a search" do
     search1 = MyModelSearch.new(CRITERIA_VALUES)
     search2 = search1.without(*CRITERIA_DEFAULT_VALUES.keys)
-    refute_equal search1.results, search2.results
+    assert_not_equal search1.results, search2.results
     assert_results CRITERIA_VALUES.merge(CRITERIA_DEFAULT_VALUES), search2
   end
 
-  def test_modify_via_without_raises_on_invalid_criteria_name
+  test "#without raises on an invalid criteria name" do
     search = MyModelSearch.new(CRITERIA_VALUES)
     assert_raises ActiveModel::UnknownAttributeError do
       search.without(:bad)
     end
   end
 
-  def test_modify_via_toggle_order
+  test "#toggle_order modifies a search" do
     order_choices = ORDER_COLUMNS.keys.zip(CRITERIA_CHOICES[:order].keys.each_slice(2))
 
     order_choices.each do |order, choices|
@@ -198,17 +198,17 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_modify_via_toggle_order_raises_on_invalid_order_name
+  test "#toggle_order raises on an invalid order name" do
     search = MyModelSearch.new
     assert_raises(ArgumentError){ search.toggle_order("BAD") }
   end
 
-  def test_modify_via_toggle_order_raises_on_invalid_direction
+  test "#toggle_order raises on an invalid direction" do
     search = MyModelSearch.new
     assert_raises(ArgumentError){ search.toggle_order(ORDER_COLUMNS.keys.first, :bad) }
   end
 
-  def test_each_choice
+  test "#each_choice" do
     chosen = CRITERIA_CHOICES.transform_values{|mapping| mapping.keys[1] }
     search = MyModelSearch.new(chosen)
 
@@ -220,7 +220,7 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_each_choice_is_sensitive_to_block_arity
+  test "#each_choice is sensitive to block arity" do
     criteria = CRITERIA_CHOICES.keys.first
     search = MyModelSearch.new
     expected = search.each_choice(criteria).map{|k, v| k }
@@ -228,7 +228,7 @@ class ModelSearchTest < Minitest::Test
     assert_equal expected, actual
   end
 
-  def test_each_choice_block_and_enum_are_equivalent
+  test "#each_choice block and enum are equivalent" do
     criteria = CRITERIA_CHOICES.keys.first
     search = MyModelSearch.new
     block_values = []
@@ -238,49 +238,49 @@ class ModelSearchTest < Minitest::Test
     assert_equal block_values, enum_values
   end
 
-  def test_each_choice_raises_on_invalid_criteria_name
+  test "#each_choice raises on an invalid criteria name" do
     search = MyModelSearch.new
     (CRITERIA_VALUES.keys - CRITERIA_CHOICES.keys + [:bad]).each do |name|
       assert_raises(ArgumentError){ search.each_choice(name) }
     end
   end
 
-  def test_order_accessor_inherits_before_type_cast_behavior
+  test "order accessor inherits before_type_cast behavior" do
     expected = "col1_desc"
     actual = MyInheritingSearch.new(order: expected).order
     assert_equal expected, actual
   end
 
-  def test_order_choices_are_inherited
+  test "order choices are inherited" do
     expected = CRITERIA_CHOICES[:order].keys.map(&:to_s) + ["new_col1.asc", "new_col1.desc"]
     actual = MyInheritingSearch.new.each_choice(:order).to_a
     assert_equal expected, actual
   end
 
-  def test_order_default_is_inherited
+  test "order default is inherited" do
     expected = MyModelSearch.new.order
     actual = MyInheritingSearch.new.order
     assert_equal expected, actual
   end
 
-  def test_order_default_can_be_overridden
+  test "order default can be overridden" do
     expected = MyReorderedInheritingSearch.new.toggle_order("new_col1", :desc).order
     actual = MyReorderedInheritingSearch.new.order
     assert_equal expected, actual
   end
 
-  def test_order_default_when_no_default_specified
+  test "order default when no default is specified" do
     assert_nil MyNoDefaultsModelSearch.new.order
   end
 
-  def test_order_columns_can_be_overridden
+  test "order columns can be overridden" do
     original = MyModelSearch.attribute_types["order"].cast("col2")
-    refute_includes original, "new_col1 ASC"
+    assert_not_includes original, "new_col1 ASC"
     actual = MyInheritingSearch.attribute_types["order"].cast("col2")
     assert_includes actual, "new_col1 ASC"
   end
 
-  def test_order_directions
+  test "#order_directions" do
     choice_directions = CRITERIA_CHOICES[:order].keys.zip([:asc, :desc].cycle).to_h
     order_choices = ORDER_COLUMNS.keys.zip(CRITERIA_CHOICES[:order].keys.each_slice(2))
     expected_base = ORDER_COLUMNS.transform_values{ nil }.with_indifferent_access
@@ -294,35 +294,35 @@ class ModelSearchTest < Minitest::Test
     end
   end
 
-  def test_order_directions_with_unsuffixed_order_choice
+  test "#order_directions with an unsuffixed order choice" do
     search1 = MyModelSearch.new(order: "col1_asc")
     search2 = MyModelSearch.new(order: :col1)
     assert_equal search1.order_directions, search2.order_directions
   end
 
-  def test_order_directions_with_no_order_specified
+  test "#order_directions with no order specified" do
     search = MyNoDefaultsModelSearch.new
     expected = { col1: nil }.with_indifferent_access
     assert_equal expected, search.order_directions
   end
 
-  def test_order_directions_with_no_orders_defined
+  test "#order_directions with no orders defined" do
     search = MyOtherModelSearch.new
     assert_equal ({}), search.order_directions
   end
 
-  def test_order_directions_is_frozen
+  test "#order_directions is frozen" do
     assert MyModelSearch.new.order_directions.frozen?
     assert MyOtherModelSearch.new.order_directions.frozen?
   end
 
-  def test_to_query_params_returns_values_before_type_cast
+  test "#to_query_params returns values before type cast" do
     before_type_cast = CRITERIA_VALUES.transform_values(&:to_s)
     search = MyModelSearch.new(before_type_cast)
     assert_equal before_type_cast.stringify_keys, search.to_query_params
   end
 
-  def test_to_query_params_ignores_default_values
+  test "#to_query_params ignores default values" do
     default_values = CRITERIA_VALUES.transform_values{ nil }.merge(CRITERIA_DEFAULT_VALUES)
     search = MyModelSearch.new(default_values)
     assert_equal Hash.new, search.to_query_params

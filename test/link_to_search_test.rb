@@ -9,52 +9,52 @@ class LinkToSearchTest < ActionView::TestCase
   # ActionView::Base
   include TalentScout::Helper
 
-  def test_helper_loaded_by_railtie
+  test "helper is loaded by the railtie" do
     assert_includes ActionView::Base.included_modules, TalentScout::Helper
   end
 
-  def test_links_to_search
+  test "link_to_search links to a search" do
     assert_search_link link_to_search(LINK_TEXT, SEARCH, HTML_OPTIONS)
   end
 
-  def test_supports_contents_block
+  test "link_to_search supports a contents block" do
     assert_search_link link_to_search(SEARCH, HTML_OPTIONS){ LINK_TEXT }
   end
 
-  def test_defaults_to_current_controller
+  test "link_to_search defaults to the current controller" do
     @controller_path = MyOtherModelsController.controller_path
     assert_search_link link_to_search(LINK_TEXT, SEARCH, HTML_OPTIONS),
       controller: @controller_path
   end
 
-  def test_supports_override_controller
+  test "link_to_search supports an override controller" do
     options = { controller: MyOtherModelsController.controller_path, search: SEARCH }
     assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), **options
   end
 
-  def test_defaults_to_current_action
+  test "link_to_search defaults to the current action" do
     @action_name = "new"
     assert_search_link link_to_search(LINK_TEXT, SEARCH, HTML_OPTIONS),
       action: @action_name
   end
 
-  def test_supports_override_action
+  test "link_to_search supports an override action" do
     options = { action: "new", search: SEARCH }
     assert_search_link link_to_search(LINK_TEXT, options, HTML_OPTIONS), **options
   end
 
-  def test_supports_extra_query_params
+  test "link_to_search supports extra query params" do
     actual = link_to_search(LINK_TEXT, { search: SEARCH, per_page: 100 }, HTML_OPTIONS)
     actual_href = Nokogiri::HTML(actual).at_css("a")["href"]
     assert_includes URI(actual_href).query.split("&"), "per_page=100"
   end
 
-  def test_html_options_are_optional
+  test "link_to_search html options are optional" do
     assert link_to_search(LINK_TEXT, SEARCH)
     assert link_to_search(SEARCH){ LINK_TEXT }
   end
 
-  def test_raises_on_nil_search
+  test "link_to_search raises on a nil search" do
     assert_raises(ArgumentError){ link_to_search(LINK_TEXT, nil, HTML_OPTIONS) }
     assert_raises(ArgumentError){ link_to_search(LINK_TEXT) }
     assert_raises(ArgumentError){ link_to_search(LINK_TEXT, { action: "index" }) }

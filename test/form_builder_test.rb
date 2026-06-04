@@ -3,45 +3,45 @@ require "talent_scout"
 
 class FormBuilderTest < ActionView::TestCase
 
-  def test_form_action_points_to_model_controller
+  test "form action points to the model controller" do
     expected = form_builder_test_my_models_path
     assert_html_attribute "action", expected, build_form(MyModel.new) # sanity check
     assert_html_attribute "action", expected, build_form(MyModelSearch.new)
   end
 
-  def test_form_uses_scoped_param_keys
+  test "form uses scoped param keys" do
     field = make_text_field(:date1)
     assert_html_attribute "name", "#{TalentScout::PARAM_KEY}[date1]", field
   end
 
-  def test_form_uses_value_before_type_cast
-    refute_equal SEARCH.date1_before_type_cast, SEARCH.date1.to_s # sanity check
+  test "form uses value_before_type_cast" do
+    assert_not_equal SEARCH.date1_before_type_cast, SEARCH.date1.to_s # sanity check
     field = make_text_field(:date1)
     assert_html_attribute "value", SEARCH.date1_before_type_cast, field
   end
 
-  def test_select_accepts_each_choice_raw_enum
+  test "select accepts each_choice's raw enum" do
     each_choice = SEARCH.each_choice(:choice1)
     choices = each_choice.to_a
     assert_equal options_for_select(choices), options_for_select(each_choice)
     assert_equal make_select_field(:choice1, choices), make_select_field(:choice1, each_choice)
   end
 
-  def test_select_selects_value_before_type_cast
+  test "select selects value_before_type_cast" do
     before_type_cast = SEARCH.choice1_before_type_cast
     selected = options_for_select([before_type_cast], selected: before_type_cast)
     field = make_select_field(:choice1, SEARCH.each_choice(:choice1))
     assert_includes field, selected
   end
 
-  def test_label_i18n
+  test "label uses I18n" do
     expected = "EXPECTED LABEL TEXT"
     I18n.backend.store_translations(:en,
       { activemodel: { attributes: { MyModelSearch.model_name.i18n_key => { date1: expected } } } })
     assert_includes make_field_label(:date1), expected
   end
 
-  def test_submit_button_default_text
+  test "submit button default text" do
     assert_html_attribute "value", "Search", make_submit_button()
   end
 

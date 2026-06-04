@@ -5,7 +5,7 @@ class SimpleFormTest < FormBuilderTest
 
   include SimpleForm::ActionViewExtensions::FormHelper
 
-  def test_attribute_type_detection
+  test "attribute type detection" do
     expected = make_form_builder.input(:date1, as: :date)
     actual = make_form_builder.input(:date1)
     assert_equal expected, actual
