@@ -189,7 +189,11 @@ class ModelSearchTest < Minitest::Test
         assert_equal toggled.to_s, search.toggle_order(order).order
         assert_equal choices.first.to_s, search.toggle_order(order, :asc).order
         assert_equal choices.last.to_s, search.toggle_order(order, :desc).order
-        assert_same choice, search.order # unmodified
+        if choice.nil?
+          assert_nil search.order # unmodified
+        else
+          assert_same choice, search.order # unmodified
+        end
       end
     end
   end
