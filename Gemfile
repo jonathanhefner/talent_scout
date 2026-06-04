@@ -6,7 +6,6 @@ gemspec
 group :development do
   gem 'sqlite3', '>= 2.1'
   gem 'capybara', '>= 2.15', '< 4.0'
-  gem 'webdrivers'
   gem 'simple_form', '~> 5.0'
 end
 
