@@ -4,8 +4,8 @@ jobs:
   tests:
     strategy:
       matrix:
-        ruby: ["3.2", "3.3", "3.4", "4.0"]
-        gemfile: [rails-8.0, rails-8.1]
+        ruby: ["3.4", "4.0"]
+        gemfile: [rails-8.1]
       fail-fast: false
 
     runs-on: ubuntu-latest
